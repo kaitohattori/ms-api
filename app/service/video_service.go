@@ -15,7 +15,7 @@ func NewVideoService(repository *repository.VideoRepository) *VideoService {
 	return &VideoService{repository: repository}
 }
 
-func (s VideoService) Find(filter *model.VideoFilter) ([]model.Video, error) {
+func (s VideoService) Find(filter model.VideoFilter) ([]model.Video, error) {
 	return s.repository.FindAll(filter)
 }
 

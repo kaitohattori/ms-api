@@ -17,6 +17,10 @@ type HTTPError struct {
 	Message string `json:"message" example:"status bad request"`
 }
 
-type HTTPResponse struct {
+type HTTPMessageResponse struct {
 	Message string `json:"message" example:"success"`
+}
+
+type HTTPResponse struct {
+	Value int `json:"value"`
 }

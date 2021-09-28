@@ -9,7 +9,7 @@ func NewVideoRepository() *VideoRepository {
 	return &VideoRepository{}
 }
 
-func (r VideoRepository) FindAll(filter *model.VideoFilter) ([]model.Video, error) {
+func (r VideoRepository) FindAll(filter model.VideoFilter) ([]model.Video, error) {
 	return model.Video.FindAll(model.Video{}, filter)
 }
 

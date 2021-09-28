@@ -10,8 +10,8 @@ type VideoFilter struct {
 	UserId   *string       `json:"userId,omitempty"`
 }
 
-func NewVideoFilter(sortType VideoSortType, limit *int, userId *string) *VideoFilter {
-	return &VideoFilter{SortType: sortType, Limit: limit, UserId: userId}
+func NewVideoFilter(sortType VideoSortType, limit *int, userId *string) VideoFilter {
+	return VideoFilter{SortType: sortType, Limit: limit, UserId: userId}
 }
 
 type VideoSortType string
