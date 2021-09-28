@@ -61,6 +61,10 @@ func main() {
 	videoService := service.NewVideoService(videoRepository)
 	videoController := controller.NewVideoController(videoService)
 
+	viewRepository := repository.NewViewRepository()
+	viewService := service.NewViewService(viewRepository)
+	viewController := controller.NewViewController(viewService)
+
 	v1 := r.Group("/api/v1")
 	{
 		videos := v1.Group("/videos")
@@ -70,6 +74,11 @@ func main() {
 			videos.POST("", videoController.Add)
 			videos.POST(":id", videoController.Update)
 			videos.DELETE(":id", videoController.Delete)
+		}
+		views := v1.Group("/videos")
+		{
+			views.GET(":id/view/total", viewController.Total)
+			views.POST(":id/view", viewController.Add)
 		}
 	}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

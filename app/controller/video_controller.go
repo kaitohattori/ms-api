@@ -109,7 +109,7 @@ func (c *VideoController) Add(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	if err := addVideo.Validation(); err != nil {
+	if err := addVideo.Valid(); err != nil {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
@@ -146,7 +146,7 @@ func (c *VideoController) Update(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	if err := updateVideo.Validation(); err != nil {
+	if err := updateVideo.Valid(); err != nil {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
@@ -165,7 +165,7 @@ func (c *VideoController) Update(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Video ID"
-// @Success 200 {object} httputil.HTTPResponse
+// @Success 200 {object} httputil.HTTPMessageResponse
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 404 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
@@ -182,7 +182,7 @@ func (c *VideoController) Delete(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	resp := httputil.HTTPResponse{
+	resp := httputil.HTTPMessageResponse{
 		Message: "success",
 	}
 	ctx.JSON(http.StatusOK, resp)
