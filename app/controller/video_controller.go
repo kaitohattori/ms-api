@@ -22,7 +22,7 @@ func NewVideoController(service *service.VideoService) *VideoController {
 // VideoController Find docs
 // @Summary Find videos
 // @Description find videos
-// @Tags videos
+// @Tags Videos
 // @Accept json
 // @Produce json
 // @Param userId query string false "User ID"
@@ -65,9 +65,9 @@ func (c *VideoController) Find(ctx *gin.Context) {
 }
 
 // VideoController Get docs
-// @Summary Get an video
+// @Summary Get a video
 // @Description get video by ID
-// @Tags videos
+// @Tags Videos
 // @Accept json
 // @Produce json
 // @Param id path int true "Video ID"
@@ -92,9 +92,9 @@ func (c *VideoController) Get(ctx *gin.Context) {
 }
 
 // VideoController Add docs
-// @Summary Add an video
+// @Summary Add a video
 // @Description add video
-// @Tags videos
+// @Tags Videos
 // @Accept json
 // @Produce json
 // @Param video body model.AddVideo true "Add account"
@@ -122,9 +122,9 @@ func (c *VideoController) Add(ctx *gin.Context) {
 }
 
 // VideoController Update docs
-// @Summary Update an video
+// @Summary Update a video
 // @Description update video
-// @Tags videos
+// @Tags Videos
 // @Accept json
 // @Produce json
 // @Param id path int true "Video ID"
@@ -159,9 +159,9 @@ func (c *VideoController) Update(ctx *gin.Context) {
 }
 
 // VideoController Delete docs
-// @Summary Delete an video
+// @Summary Delete a video
 // @Description delete video
-// @Tags videos
+// @Tags Videos
 // @Accept json
 // @Produce json
 // @Param id path int true "Video ID"

@@ -25,7 +25,7 @@ func NewViewController(service *service.ViewService) *ViewController {
 // @Accept json
 // @Produce json
 // @Param id path int true "Video ID"
-// @Success 200 {object} httputil.HTTPResponse
+// @Success 200 {object} httputil.HTTPValueResponse
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 404 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
@@ -43,14 +43,14 @@ func (c *ViewController) Total(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	resp := httputil.HTTPResponse{
+	resp := httputil.HTTPValueResponse{
 		Value: *total,
 	}
 	ctx.JSON(http.StatusOK, resp)
 }
 
 // ViewController Add docs
-// @Summary Add an View
+// @Summary Add a View
 // @Description add View
 // @Tags Views
 // @Accept json
