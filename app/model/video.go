@@ -41,12 +41,12 @@ func (v Video) Insert(ctx *gin.Context, userId string) (int, error) {
 	return 10, nil
 }
 
-func (v Video) Update(ctx *gin.Context, userId string) (bool, error) {
-	return true, nil
+func (v Video) Update(ctx *gin.Context, userId string) error {
+	return nil
 }
 
-func (v Video) Delete(ctx *gin.Context, userId string) (bool, error) {
-	return true, nil
+func (v Video) Delete(ctx *gin.Context, userId string) error {
+	return nil
 }
 
 type AddVideo struct {

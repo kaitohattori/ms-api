@@ -54,7 +54,7 @@ func (c *ViewController) Total(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Video ID"
-// @Success 200 {object} httputil.HTTPMessageResponse
+// @Success 200 {object} model.View
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 404 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
@@ -67,13 +67,10 @@ func (c *ViewController) Add(ctx *gin.Context) {
 		return
 	}
 	userId := "user_id"
-	err = c.service.Add(ctx, videoId, userId)
+	view, err := c.service.Add(ctx, videoId, userId)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	resp := httputil.HTTPMessageResponse{
-		Message: "success",
-	}
-	ctx.JSON(http.StatusOK, resp)
+	ctx.JSON(http.StatusOK, view)
 }

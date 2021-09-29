@@ -180,8 +180,7 @@ func (c *VideoController) Delete(ctx *gin.Context) {
 		return
 	}
 	userId := "user_id"
-	_, err = c.service.Remove(ctx, videoId, userId)
-	if err != nil {
+	if err = c.service.Remove(ctx, videoId, userId); err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
 	}

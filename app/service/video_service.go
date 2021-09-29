@@ -33,12 +33,11 @@ func (s VideoService) Add(ctx *gin.Context, addVideo model.AddVideo, userId stri
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
 	}
-	lastId, err := s.repository.Insert(ctx, video, userId)
+	newVideo, err := s.repository.Insert(ctx, video, userId)
 	if err != nil {
 		return nil, err
 	}
-	video.Id = lastId
-	return video, nil
+	return newVideo, nil
 }
 
 func (s VideoService) Update(ctx *gin.Context, videoId int, updateVideo model.UpdateVideo, userId string) (*model.Video, error) {
@@ -48,13 +47,12 @@ func (s VideoService) Update(ctx *gin.Context, videoId int, updateVideo model.Up
 		ThumbnailUrl: updateVideo.ThumbnailUrl,
 		UserId:       updateVideo.UserId,
 	}
-	_, err := s.repository.Update(ctx, video, userId)
-	if err != nil {
+	if err := s.repository.Update(ctx, video, userId); err != nil {
 		return nil, err
 	}
 	return video, nil
 }
 
-func (s VideoService) Remove(ctx *gin.Context, videoId int, userId string) (bool, error) {
+func (s VideoService) Remove(ctx *gin.Context, videoId int, userId string) error {
 	return s.repository.Delete(ctx, videoId, userId)
 }

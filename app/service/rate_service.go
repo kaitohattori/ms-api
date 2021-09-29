@@ -16,25 +16,13 @@ func NewRateService(repository *repository.RateRepository) *RateService {
 }
 
 func (s RateService) Get(ctx *gin.Context, videoId int, userId string) (*model.Rate, error) {
-	value, err := s.repository.FindOne(ctx, videoId, userId)
-	if err != nil {
-		return nil, err
-	}
-	return value, nil
+	return s.repository.FindOne(ctx, videoId, userId)
 }
 
-func (s RateService) Add(ctx *gin.Context, videoId int, userId string) error {
-	_, err := s.repository.Insert(ctx, videoId, userId)
-	if err != nil {
-		return err
-	}
-	return nil
+func (s RateService) Add(ctx *gin.Context, videoId int, userId string) (*model.Rate, error) {
+	return s.repository.Insert(ctx, videoId, userId)
 }
 
 func (s RateService) Average(ctx *gin.Context, videoId int) (*float32, error) {
-	value, err := s.repository.Average(ctx, videoId)
-	if err != nil {
-		return nil, err
-	}
-	return value, nil
+	return s.repository.Average(ctx, videoId)
 }
