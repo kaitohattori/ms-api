@@ -25,7 +25,7 @@ func (s VideoService) Get(ctx *gin.Context, videoId int) (*model.Video, error) {
 	return s.repository.FindOne(ctx, videoId)
 }
 
-func (s VideoService) Add(ctx *gin.Context, addVideo model.AddVideo) (*model.Video, error) {
+func (s VideoService) Add(ctx *gin.Context, addVideo model.AddVideo, userId string) (*model.Video, error) {
 	video := &model.Video{
 		Title:        addVideo.Title,
 		ThumbnailUrl: fmt.Sprintf("http://ms-tv.local/web-api/video/%d/thumbnail", 10),
@@ -33,7 +33,7 @@ func (s VideoService) Add(ctx *gin.Context, addVideo model.AddVideo) (*model.Vid
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
 	}
-	lastId, err := s.repository.Insert(ctx, video)
+	lastId, err := s.repository.Insert(ctx, video, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -41,20 +41,20 @@ func (s VideoService) Add(ctx *gin.Context, addVideo model.AddVideo) (*model.Vid
 	return video, nil
 }
 
-func (s VideoService) Update(ctx *gin.Context, videoId int, updateVideo model.UpdateVideo) (*model.Video, error) {
+func (s VideoService) Update(ctx *gin.Context, videoId int, updateVideo model.UpdateVideo, userId string) (*model.Video, error) {
 	video := &model.Video{
 		Id:           videoId,
 		Title:        updateVideo.Title,
 		ThumbnailUrl: updateVideo.ThumbnailUrl,
 		UserId:       updateVideo.UserId,
 	}
-	_, err := s.repository.Update(ctx, video)
+	_, err := s.repository.Update(ctx, video, userId)
 	if err != nil {
 		return nil, err
 	}
 	return video, nil
 }
 
-func (s VideoService) Remove(ctx *gin.Context, videoId int) (bool, error) {
-	return s.repository.Delete(ctx, videoId)
+func (s VideoService) Remove(ctx *gin.Context, videoId int, userId string) (bool, error) {
+	return s.repository.Delete(ctx, videoId, userId)
 }

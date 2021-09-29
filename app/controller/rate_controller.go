@@ -36,12 +36,44 @@ func (c *RateController) Get(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	rate, err := c.service.Get(ctx, videoId)
+	userId := "user_id"
+	rate, err := c.service.Get(ctx, videoId, userId)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, rate)
+}
+
+// RateController Add docs
+// @Summary Add a Rate
+// @Description add Rate
+// @Tags Rates
+// @Accept json
+// @Produce json
+// @Param id path int true "Video ID"
+// @Success 200 {object} httputil.HTTPMessageResponse
+// @Failure 400 {object} httputil.HTTPError
+// @Failure 404 {object} httputil.HTTPError
+// @Failure 500 {object} httputil.HTTPError
+// @Router /videos/{id}/rate [post]
+func (c *RateController) Add(ctx *gin.Context) {
+	videoIdStr := ctx.Param("id")
+	videoId, err := strconv.Atoi(videoIdStr)
+	if err != nil {
+		httputil.NewError(ctx, http.StatusBadRequest, err)
+		return
+	}
+	userId := "user_id"
+	err = c.service.Add(ctx, videoId, userId)
+	if err != nil {
+		httputil.NewError(ctx, http.StatusNotFound, err)
+		return
+	}
+	resp := httputil.HTTPMessageResponse{
+		Message: "success",
+	}
+	ctx.JSON(http.StatusOK, resp)
 }
 
 // RateController Average docs
@@ -70,36 +102,6 @@ func (c *RateController) Average(ctx *gin.Context) {
 	}
 	resp := httputil.HTTPValueResponse{
 		Value: *value,
-	}
-	ctx.JSON(http.StatusOK, resp)
-}
-
-// RateController Add docs
-// @Summary Add a Rate
-// @Description add Rate
-// @Tags Rates
-// @Accept json
-// @Produce json
-// @Param id path int true "Video ID"
-// @Success 200 {object} httputil.HTTPMessageResponse
-// @Failure 400 {object} httputil.HTTPError
-// @Failure 404 {object} httputil.HTTPError
-// @Failure 500 {object} httputil.HTTPError
-// @Router /videos/{id}/rate [post]
-func (c *RateController) Add(ctx *gin.Context) {
-	videoIdStr := ctx.Param("id")
-	videoId, err := strconv.Atoi(videoIdStr)
-	if err != nil {
-		httputil.NewError(ctx, http.StatusBadRequest, err)
-		return
-	}
-	err = c.service.Add(ctx, videoId)
-	if err != nil {
-		httputil.NewError(ctx, http.StatusNotFound, err)
-		return
-	}
-	resp := httputil.HTTPMessageResponse{
-		Message: "success",
 	}
 	ctx.JSON(http.StatusOK, resp)
 }

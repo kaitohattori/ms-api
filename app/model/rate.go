@@ -15,22 +15,22 @@ type Rate struct {
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }
 
-func (Rate) FindOne(ctx *gin.Context, videoId int) (*Rate, error) {
+func (Rate) FindOne(ctx *gin.Context, videoId int, userId string) (*Rate, error) {
 	rate := &Rate{}
 	rate.Id = 1
-	rate.UserId = "user_id"
-	rate.VideoId = 10
+	rate.UserId = userId
+	rate.VideoId = videoId
 	rate.Value = 3.0
 	rate.CreatedAt = time.Now()
 	rate.UpdatedAt = time.Now()
 	return rate, nil
 }
 
+func (Rate) Insert(ctx *gin.Context, videoId int, userId string) (int, error) {
+	return 10, nil
+}
+
 func (Rate) Average(ctx *gin.Context, videoId int) (*float32, error) {
 	var value float32 = 3.0
 	return &value, nil
-}
-
-func (Rate) Insert(ctx *gin.Context, videoId int) (int, error) {
-	return 10, nil
 }

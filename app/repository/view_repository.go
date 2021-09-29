@@ -13,10 +13,10 @@ func NewViewRepository() *ViewRepository {
 	return &ViewRepository{}
 }
 
-func (r ViewRepository) Count(ctx *gin.Context, filter model.ViewFilter) (*int, error) {
-	return model.View.Count(model.View{}, ctx, filter)
+func (r ViewRepository) Insert(ctx *gin.Context, videoId int, userId string) (int, error) {
+	return model.View.Insert(model.View{}, ctx, videoId, userId)
 }
 
-func (r ViewRepository) Insert(ctx *gin.Context, videoId int) (int, error) {
-	return model.View.Insert(model.View{}, ctx, videoId)
+func (r ViewRepository) Count(ctx *gin.Context, videoId int) (*int, error) {
+	return model.View.Count(model.View{}, ctx, videoId)
 }

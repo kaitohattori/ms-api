@@ -21,18 +21,18 @@ func (r VideoRepository) FindOne(ctx *gin.Context, videoId int) (*model.Video, e
 	return model.Video.FindOne(model.Video{}, ctx, videoId)
 }
 
-func (r VideoRepository) Insert(ctx *gin.Context, video *model.Video) (int, error) {
-	return video.Insert(ctx)
+func (r VideoRepository) Insert(ctx *gin.Context, video *model.Video, userId string) (int, error) {
+	return video.Insert(ctx, userId)
 }
 
-func (r VideoRepository) Update(ctx *gin.Context, video *model.Video) (bool, error) {
-	return video.Update(ctx)
+func (r VideoRepository) Update(ctx *gin.Context, video *model.Video, userId string) (bool, error) {
+	return video.Update(ctx, userId)
 }
 
-func (r VideoRepository) Delete(ctx *gin.Context, videoId int) (bool, error) {
+func (r VideoRepository) Delete(ctx *gin.Context, videoId int, userId string) (bool, error) {
 	video, err := r.FindOne(ctx, videoId)
 	if err != nil {
 		return false, err
 	}
-	return video.Delete(ctx)
+	return video.Delete(ctx, userId)
 }

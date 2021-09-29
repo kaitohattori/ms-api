@@ -2,7 +2,6 @@ package controller
 
 import (
 	"ms-api/app/httputil"
-	"ms-api/app/model"
 	"ms-api/app/service"
 	"net/http"
 	"strconv"
@@ -37,8 +36,7 @@ func (c *ViewController) Total(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	filter := model.NewViewFilter(&videoId, nil)
-	total, err := c.service.Total(ctx, filter)
+	total, err := c.service.Total(ctx, videoId)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
@@ -68,7 +66,8 @@ func (c *ViewController) Add(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	err = c.service.Add(ctx, videoId)
+	userId := "user_id"
+	err = c.service.Add(ctx, videoId, userId)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
