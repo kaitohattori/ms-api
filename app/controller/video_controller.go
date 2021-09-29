@@ -56,7 +56,7 @@ func (c *VideoController) Find(ctx *gin.Context) {
 		return
 	}
 	filter := model.NewVideoFilter(sortType, limit, &userId)
-	videos, err := c.service.Find(filter)
+	videos, err := c.service.Find(ctx, filter)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
@@ -83,7 +83,7 @@ func (c *VideoController) Get(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	video, err := c.service.Get(videoId)
+	video, err := c.service.Get(ctx, videoId)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
@@ -113,7 +113,7 @@ func (c *VideoController) Add(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	video, err := c.service.Add(addVideo)
+	video, err := c.service.Add(ctx, addVideo)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
@@ -150,7 +150,7 @@ func (c *VideoController) Update(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	video, err := c.service.Update(videoId, updateVideo)
+	video, err := c.service.Update(ctx, videoId, updateVideo)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
@@ -177,7 +177,7 @@ func (c *VideoController) Delete(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	_, err = c.service.Remove(videoId)
+	_, err = c.service.Remove(ctx, videoId)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return

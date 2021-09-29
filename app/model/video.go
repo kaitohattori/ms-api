@@ -3,6 +3,8 @@ package model
 import (
 	"fmt"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Video struct {
@@ -14,7 +16,7 @@ type Video struct {
 	UpdatedAt    time.Time `json:"updatedAt,omitempty"`
 }
 
-func (Video) FindAll(filter VideoFilter) ([]Video, error) {
+func (Video) FindAll(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
 	video := Video{}
 	video.Title = fmt.Sprintf("video %d", 10)
 	video.ThumbnailUrl = fmt.Sprintf("http://ms-tv.local/web-api/video/%d/thumbnail", 10)
@@ -26,7 +28,7 @@ func (Video) FindAll(filter VideoFilter) ([]Video, error) {
 	return videos, nil
 }
 
-func (Video) FindOne(videoId int) (*Video, error) {
+func (Video) FindOne(ctx *gin.Context, videoId int) (*Video, error) {
 	video := &Video{}
 	video.Title = fmt.Sprintf("video %d", 10)
 	video.ThumbnailUrl = fmt.Sprintf("http://ms-tv.local/web-api/video/%d/thumbnail", 10)
@@ -36,15 +38,15 @@ func (Video) FindOne(videoId int) (*Video, error) {
 	return video, nil
 }
 
-func (v Video) Insert() (int, error) {
+func (v Video) Insert(ctx *gin.Context) (int, error) {
 	return 10, nil
 }
 
-func (v Video) Update() (bool, error) {
+func (v Video) Update(ctx *gin.Context) (bool, error) {
 	return true, nil
 }
 
-func (v Video) Delete() (bool, error) {
+func (v Video) Delete(ctx *gin.Context) (bool, error) {
 	return true, nil
 }
 

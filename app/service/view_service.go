@@ -3,6 +3,8 @@ package service
 import (
 	"ms-api/app/model"
 	"ms-api/app/repository"
+
+	"github.com/gin-gonic/gin"
 )
 
 type ViewService struct {
@@ -13,16 +15,16 @@ func NewViewService(repository *repository.ViewRepository) *ViewService {
 	return &ViewService{repository: repository}
 }
 
-func (s ViewService) Total(filter model.ViewFilter) (*int, error) {
-	value, err := s.repository.Count(filter)
+func (s ViewService) Total(ctx *gin.Context, filter model.ViewFilter) (*int, error) {
+	value, err := s.repository.Count(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
 	return value, nil
 }
 
-func (s ViewService) Add(videoId int) error {
-	_, err := s.repository.Insert(videoId)
+func (s ViewService) Add(ctx *gin.Context, videoId int) error {
+	_, err := s.repository.Insert(ctx, videoId)
 	if err != nil {
 		return err
 	}
