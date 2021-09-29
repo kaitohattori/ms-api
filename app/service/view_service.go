@@ -15,10 +15,10 @@ func NewViewService(repository *repository.ViewRepository) *ViewService {
 	return &ViewService{repository: repository}
 }
 
-func (s ViewService) Add(ctx *gin.Context, videoId int, userId string) (*model.View, error) {
-	return s.repository.Insert(ctx, videoId, userId)
-}
-
 func (s ViewService) Total(ctx *gin.Context, videoId int) (*int, error) {
 	return s.repository.Count(ctx, videoId)
+}
+
+func (s ViewService) Add(ctx *gin.Context, view *model.View) error {
+	return s.repository.Insert(ctx, view)
 }

@@ -7,6 +7,7 @@ import (
 	"ms-api/app/service"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -97,7 +98,7 @@ func (c *VideoController) Get(ctx *gin.Context) {
 // @Tags Videos
 // @Accept json
 // @Produce json
-// @Param video body model.AddVideo true "Add account"
+// @Param video body model.AddVideo true "Add video"
 // @Success 200 {object} model.Video
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 404 {object} httputil.HTTPError
@@ -114,8 +115,11 @@ func (c *VideoController) Add(ctx *gin.Context) {
 		return
 	}
 	userId := "user_id"
-	video, err := c.service.Add(ctx, addVideo, userId)
-	if err != nil {
+	video := &model.Video{
+		UserId: userId,
+	}
+	addVideo.SetParamsTo(video)
+	if err := c.service.Add(ctx, video); err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
@@ -129,7 +133,7 @@ func (c *VideoController) Add(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Video ID"
-// @Param video body model.UpdateVideo true "Add account"
+// @Param video body model.UpdateVideo true "Update video"
 // @Success 200 {object} model.Video
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 404 {object} httputil.HTTPError
@@ -152,8 +156,13 @@ func (c *VideoController) Update(ctx *gin.Context) {
 		return
 	}
 	userId := "user_id"
-	video, err := c.service.Update(ctx, videoId, updateVideo, userId)
-	if err != nil {
+	video := &model.Video{
+		Id:        videoId,
+		UserId:    userId,
+		UpdatedAt: time.Now(),
+	}
+	updateVideo.SetParamsTo(video)
+	if err := c.service.Update(ctx, video); err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
@@ -179,8 +188,8 @@ func (c *VideoController) Delete(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	userId := "user_id"
-	if err = c.service.Remove(ctx, videoId, userId); err != nil {
+	// userId := "user_id"
+	if err = c.service.Remove(ctx, videoId); err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
 	}

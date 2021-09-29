@@ -26,11 +26,11 @@ func (Rate) FindOne(ctx *gin.Context, videoId int, userId string) (*Rate, error)
 	return rate, nil
 }
 
-func (Rate) Insert(ctx *gin.Context, videoId int, userId string) (int, error) {
-	return 10, nil
-}
-
 func (Rate) Average(ctx *gin.Context, videoId int) (*float32, error) {
 	var value float32 = 3.0
 	return &value, nil
+}
+
+func (r Rate) Insert(ctx *gin.Context) error {
+	return nil
 }
