@@ -38,7 +38,7 @@ func (c *ViewController) Total(ctx *gin.Context) {
 		return
 	}
 	filter := model.NewViewFilter(&videoId, nil)
-	total, err := c.service.Total(filter)
+	total, err := c.service.Total(ctx, filter)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
@@ -68,7 +68,7 @@ func (c *ViewController) Add(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	err = c.service.Add(videoId)
+	err = c.service.Add(ctx, videoId)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
