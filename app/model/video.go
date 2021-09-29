@@ -29,6 +29,7 @@ func (Video) FindAll(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
 
 func (Video) FindOne(ctx *gin.Context, videoId int) (*Video, error) {
 	video := &Video{}
+	video.Id = videoId
 	video.Title = fmt.Sprintf("video %d", 10)
 	video.ThumbnailUrl = fmt.Sprintf("http://ms-tv.local/web-api/video/%d/thumbnail", 10)
 	video.CreatedAt = time.Now()
