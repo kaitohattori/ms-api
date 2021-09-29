@@ -7,6 +7,7 @@ import (
 	"ms-api/app/service"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,7 +23,7 @@ func NewVideoController(service *service.VideoService) *VideoController {
 // VideoController Find docs
 // @Summary Find videos
 // @Description find videos
-// @Tags videos
+// @Tags Videos
 // @Accept json
 // @Produce json
 // @Param userId query string false "User ID"
@@ -65,9 +66,9 @@ func (c *VideoController) Find(ctx *gin.Context) {
 }
 
 // VideoController Get docs
-// @Summary Get an video
+// @Summary Get a video
 // @Description get video by ID
-// @Tags videos
+// @Tags Videos
 // @Accept json
 // @Produce json
 // @Param id path int true "Video ID"
@@ -92,12 +93,12 @@ func (c *VideoController) Get(ctx *gin.Context) {
 }
 
 // VideoController Add docs
-// @Summary Add an video
+// @Summary Add a video
 // @Description add video
-// @Tags videos
+// @Tags Videos
 // @Accept json
 // @Produce json
-// @Param video body model.AddVideo true "Add account"
+// @Param video body model.AddVideo true "Add video"
 // @Success 200 {object} model.Video
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 404 {object} httputil.HTTPError
@@ -113,8 +114,12 @@ func (c *VideoController) Add(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	video, err := c.service.Add(ctx, addVideo)
-	if err != nil {
+	userId := "user_id"
+	video := &model.Video{
+		UserId: userId,
+	}
+	addVideo.SetParamsTo(video)
+	if err := c.service.Add(ctx, video); err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
@@ -122,13 +127,13 @@ func (c *VideoController) Add(ctx *gin.Context) {
 }
 
 // VideoController Update docs
-// @Summary Update an video
+// @Summary Update a video
 // @Description update video
-// @Tags videos
+// @Tags Videos
 // @Accept json
 // @Produce json
 // @Param id path int true "Video ID"
-// @Param video body model.UpdateVideo true "Add account"
+// @Param video body model.UpdateVideo true "Update video"
 // @Success 200 {object} model.Video
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 404 {object} httputil.HTTPError
@@ -150,8 +155,14 @@ func (c *VideoController) Update(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	video, err := c.service.Update(ctx, videoId, updateVideo)
-	if err != nil {
+	userId := "user_id"
+	video := &model.Video{
+		Id:        videoId,
+		UserId:    userId,
+		UpdatedAt: time.Now(),
+	}
+	updateVideo.SetParamsTo(video)
+	if err := c.service.Update(ctx, video); err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
@@ -159,9 +170,9 @@ func (c *VideoController) Update(ctx *gin.Context) {
 }
 
 // VideoController Delete docs
-// @Summary Delete an video
+// @Summary Delete a video
 // @Description delete video
-// @Tags videos
+// @Tags Videos
 // @Accept json
 // @Produce json
 // @Param id path int true "Video ID"
@@ -177,8 +188,8 @@ func (c *VideoController) Delete(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	_, err = c.service.Remove(ctx, videoId)
-	if err != nil {
+	// userId := "user_id"
+	if err = c.service.Remove(ctx, videoId); err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
 	}

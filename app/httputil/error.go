@@ -21,6 +21,6 @@ type HTTPMessageResponse struct {
 	Message string `json:"message" example:"success"`
 }
 
-type HTTPResponse struct {
-	Value int `json:"value"`
+type HTTPValueResponse struct {
+	Value interface{} `json:"value"`
 }

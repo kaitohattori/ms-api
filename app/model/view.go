@@ -14,11 +14,11 @@ type View struct {
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }
 
-func (View) Count(ctx *gin.Context, filter ViewFilter) (*int, error) {
+func (View) Count(ctx *gin.Context, videoId int) (*int, error) {
 	var value int = 15
 	return &value, nil
 }
 
-func (View) Insert(ctx *gin.Context, videoId int) (int, error) {
-	return 10, nil
+func (v View) Insert(ctx *gin.Context) error {
+	return nil
 }

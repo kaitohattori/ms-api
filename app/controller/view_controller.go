@@ -25,7 +25,7 @@ func NewViewController(service *service.ViewService) *ViewController {
 // @Accept json
 // @Produce json
 // @Param id path int true "Video ID"
-// @Success 200 {object} httputil.HTTPResponse
+// @Success 200 {object} httputil.HTTPValueResponse
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 404 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
@@ -37,26 +37,25 @@ func (c *ViewController) Total(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	filter := model.NewViewFilter(&videoId, nil)
-	total, err := c.service.Total(ctx, filter)
+	total, err := c.service.Total(ctx, videoId)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	resp := httputil.HTTPResponse{
+	resp := httputil.HTTPValueResponse{
 		Value: *total,
 	}
 	ctx.JSON(http.StatusOK, resp)
 }
 
 // ViewController Add docs
-// @Summary Add an View
+// @Summary Add a View
 // @Description add View
 // @Tags Views
 // @Accept json
 // @Produce json
 // @Param id path int true "Video ID"
-// @Success 200 {object} httputil.HTTPMessageResponse
+// @Success 200 {object} model.View
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 404 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
@@ -68,13 +67,14 @@ func (c *ViewController) Add(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	err = c.service.Add(ctx, videoId)
-	if err != nil {
+	userId := "user_id"
+	view := &model.View{
+		VideoId: videoId,
+		UserId:  userId,
+	}
+	if err := c.service.Add(ctx, view); err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	resp := httputil.HTTPMessageResponse{
-		Message: "success",
-	}
-	ctx.JSON(http.StatusOK, resp)
+	ctx.JSON(http.StatusOK, view)
 }
