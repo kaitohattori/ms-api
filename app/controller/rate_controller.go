@@ -75,7 +75,7 @@ func (c *RateController) Average(ctx *gin.Context) {
 }
 
 // RateController Add docs
-// @Summary Add an Rate
+// @Summary Add a Rate
 // @Description add Rate
 // @Tags Rates
 // @Accept json
