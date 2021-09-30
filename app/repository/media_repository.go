@@ -13,7 +13,7 @@ func NewMediaRepository() *MediaRepository {
 	return &MediaRepository{}
 }
 
-func (r MediaRepository) Upload(ctx *gin.Context, media *model.Media) error {
+func (r MediaRepository) Upload(ctx *gin.Context, media *model.Media) (*model.Video, error) {
 	return media.Upload(ctx)
 }
 

@@ -8,18 +8,16 @@ import (
 )
 
 type Video struct {
-	Id           int       `json:"id"`
-	Title        string    `json:"title,omitempty"`
-	ThumbnailUrl string    `json:"thumbnailUrl,omitempty"`
-	UserId       string    `json:"userId,omitempty"`
-	CreatedAt    time.Time `json:"createdAt,omitempty"`
-	UpdatedAt    time.Time `json:"updatedAt,omitempty"`
+	Id        int       `json:"id"`
+	UserId    string    `json:"userId,omitempty"`
+	Title     string    `json:"title,omitempty"`
+	CreatedAt time.Time `json:"createdAt,omitempty"`
+	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }
 
 func (Video) FindAll(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
 	video := Video{}
 	video.Title = fmt.Sprintf("video %d", 10)
-	video.ThumbnailUrl = fmt.Sprintf("http://ms-tv.local/web-api/video/%d/thumbnail", 10)
 	video.CreatedAt = time.Now()
 	video.UpdatedAt = time.Now()
 
@@ -31,7 +29,6 @@ func (Video) FindOne(ctx *gin.Context, videoId int) (*Video, error) {
 	video := &Video{}
 	video.Id = videoId
 	video.Title = fmt.Sprintf("video %d", 10)
-	video.ThumbnailUrl = fmt.Sprintf("http://ms-tv.local/web-api/video/%d/thumbnail", 10)
 	video.CreatedAt = time.Now()
 	video.UpdatedAt = time.Now()
 
@@ -74,15 +71,12 @@ func (v AddVideo) SetParamsTo(video *Video) error {
 }
 
 type UpdateVideo struct {
-	Title        string `json:"title" example:"video title"`
-	ThumbnailUrl string `json:"thumbnailUrl" example:"video thumbnailUrl"`
+	Title string `json:"title" example:"video title"`
 }
 
 func (v UpdateVideo) Valid() error {
 	switch {
 	case len(v.Title) == 0:
-		return ErrNameInvalid
-	case len(v.ThumbnailUrl) == 0:
 		return ErrNameInvalid
 	default:
 		return nil
@@ -95,9 +89,6 @@ func (v UpdateVideo) SetParamsTo(video *Video) error {
 	}
 	if v.Title != "" {
 		video.Title = v.Title
-	}
-	if v.ThumbnailUrl != "" {
-		video.ThumbnailUrl = v.ThumbnailUrl
 	}
 	return nil
 }

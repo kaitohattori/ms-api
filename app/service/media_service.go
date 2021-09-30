@@ -15,7 +15,7 @@ func NewMediaService(repository *repository.MediaRepository) *MediaService {
 	return &MediaService{repository: repository}
 }
 
-func (s MediaService) Upload(ctx *gin.Context, media *model.Media) error {
+func (s MediaService) Upload(ctx *gin.Context, media *model.Media) (*model.Video, error) {
 	return s.repository.Upload(ctx, media)
 }
 

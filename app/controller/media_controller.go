@@ -26,7 +26,7 @@ func NewMediaController(service *service.MediaService) *MediaController {
 // @Produce json
 // @Param file formData file true "Video File"
 // @Param title formData string true "Video Title"
-// @Success 200 {object} httputil.HTTPMessageResponse
+// @Success 200 {object} model.Video
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 404 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
@@ -44,14 +44,12 @@ func (c *MediaController) Upload(ctx *gin.Context) {
 		Title:    title,
 		UserId:   userId,
 	}
-	if err := c.service.Upload(ctx, Media); err != nil {
+	video, err := c.service.Upload(ctx, Media)
+	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	resp := httputil.HTTPMessageResponse{
-		Message: "success",
-	}
-	ctx.JSON(http.StatusOK, resp)
+	ctx.JSON(http.StatusOK, video)
 }
 
 // VideoController GetThumbnailImage docs
