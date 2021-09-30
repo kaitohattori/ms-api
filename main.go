@@ -69,6 +69,10 @@ func main() {
 	rateService := service.NewRateService(rateRepository)
 	rateController := controller.NewRateController(rateService)
 
+	mediaRepository := repository.NewMediaRepository()
+	mediaService := service.NewMediaService(mediaRepository)
+	mediaController := controller.NewMediaController(mediaService)
+
 	v1 := r.Group("/api/v1")
 	{
 		videos := v1.Group("/videos")
@@ -89,6 +93,11 @@ func main() {
 			rates.GET(":id/rate", rateController.Get)
 			rates.GET(":id/rate/average", rateController.Average)
 			rates.POST(":id/rate", rateController.Add)
+		}
+		media := v1.Group("/videos")
+		{
+			media.GET(":id/thumbnail", mediaController.GetThumbnailImage)
+			media.POST("upload", mediaController.Upload)
 		}
 	}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
