@@ -16,10 +16,10 @@ type Media struct {
 
 type ThumbnailImage *io.ReadCloser
 
-func (v Media) Upload(ctx *gin.Context) (*Video, error) {
+func (m *Media) Upload(ctx *gin.Context) (*Video, error) {
 	video := Video{
-		Title:     v.Title,
-		UserId:    v.UserId,
+		Title:     m.Title,
+		UserId:    m.UserId,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -31,7 +31,7 @@ func (v Media) Upload(ctx *gin.Context) (*Video, error) {
 		return nil, err
 	}
 	// Save video
-	if err := util.MediaUtil.SaveVideo(v.FileName, *dirPath); err != nil {
+	if err := util.MediaUtil.SaveVideo(m.FileName, *dirPath); err != nil {
 		return nil, err
 	}
 	// Process video

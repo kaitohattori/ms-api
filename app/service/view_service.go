@@ -19,6 +19,13 @@ func (s ViewService) Total(ctx *gin.Context, videoId int) (*int, error) {
 	return s.repository.Count(ctx, videoId)
 }
 
-func (s ViewService) Add(ctx *gin.Context, view *model.View) error {
-	return s.repository.Insert(ctx, view)
+func (s ViewService) Add(ctx *gin.Context, userId string, videoId int) (*model.View, error) {
+	view := &model.View{
+		VideoId: videoId,
+		UserId:  userId,
+	}
+	if err := s.repository.Insert(ctx, view); err != nil {
+		return nil, err
+	}
+	return view, nil
 }

@@ -2,6 +2,8 @@ package model
 
 import (
 	"fmt"
+	"log"
+	"time"
 
 	"ms-api/config"
 
@@ -24,51 +26,76 @@ func connectDb() (db *gorm.DB, err error) {
 	return gorm.Open(postgres.Open(dsn), &gorm.Config{})
 }
 
-// func init() {
-// 	db, err := connectDb()
-// 	DbConnection = db
-// 	if err != nil {
-// 		log.Fatalln(err)
-// 	}
+func init() {
+	db, err := connectDb()
+	DbConnection = db
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-// 	// Auto Migrate
-// 	if err := db.AutoMigrate(&Video{}); err != nil {
-// 		log.Fatalln(err)
-// 	}
-// 	if err := db.AutoMigrate(&View{}); err != nil {
-// 		log.Fatalln(err)
-// 	}
-// 	if err := db.AutoMigrate(&Rate{}); err != nil {
-// 		log.Fatalln(err)
-// 	}
+	// Drop table
+	if err := db.Migrator().DropTable(&Video{}); err != nil {
+		log.Fatalln(err)
+	}
+	if err := db.Migrator().DropTable(&View{}); err != nil {
+		log.Fatalln(err)
+	}
+	if err := db.Migrator().DropTable(&Rate{}); err != nil {
+		log.Fatalln(err)
+	}
 
-// 	// Drop table
-// 	if err := db.Migrator().DropTable(&Video{}); err != nil {
-// 		log.Fatalln(err)
-// 	}
+	// Auto Migrate
+	if err := db.AutoMigrate(&Video{}); err != nil {
+		log.Fatalln(err)
+	}
+	if err := db.AutoMigrate(&View{}); err != nil {
+		log.Fatalln(err)
+	}
+	if err := db.AutoMigrate(&Rate{}); err != nil {
+		log.Fatalln(err)
+	}
 
-// 	// Create table
-// 	if !db.Migrator().HasTable(&Video{}) {
-// 		if err := db.Migrator().CreateTable(&Video{}); err != nil {
-// 			log.Fatalln(err)
-// 		}
-// 	}
-// 	if !db.Migrator().HasTable(&View{}) {
-// 		if err := db.Migrator().CreateTable(&View{}); err != nil {
-// 			log.Fatalln(err)
-// 		}
-// 	}
-// 	if !db.Migrator().HasTable(&Rate{}) {
-// 		if err := db.Migrator().CreateTable(&Rate{}); err != nil {
-// 			log.Fatalln(err)
-// 		}
-// 	}
+	// Create table
+	if !db.Migrator().HasTable(&Video{}) {
+		if err := db.Migrator().CreateTable(&Video{}); err != nil {
+			log.Fatalln(err)
+		}
+	}
+	if !db.Migrator().HasTable(&View{}) {
+		if err := db.Migrator().CreateTable(&View{}); err != nil {
+			log.Fatalln(err)
+		}
+	}
+	if !db.Migrator().HasTable(&Rate{}) {
+		if err := db.Migrator().CreateTable(&Rate{}); err != nil {
+			log.Fatalln(err)
+		}
+	}
 
-// 	for id := 1; id <= 4; id++ {
-// 		content := Video{}
-// 		content.Title = fmt.Sprintf("video %d", id)
-// 		content.CreatedAt = time.Now()
-// 		content.UpdatedAt = time.Now()
-// 		db.Create(&content)
-// 	}
-// }
+	for id := 1; id <= 4; id++ {
+		video := Video{
+			Title:     fmt.Sprintf("video %d", id),
+			UserId:    fmt.Sprintf("user_%d", id),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+		db.Create(&video)
+
+		view := View{
+			UserId:    fmt.Sprintf("user_%d", id),
+			VideoId:   video.Id,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+		db.Create(&view)
+
+		rate := Rate{
+			UserId:    fmt.Sprintf("user_%d", id),
+			VideoId:   video.Id,
+			Value:     3,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+		db.Create(&rate)
+	}
+}

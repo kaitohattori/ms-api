@@ -2,7 +2,6 @@ package controller
 
 import (
 	"ms-api/app/httputil"
-	"ms-api/app/model"
 	"ms-api/app/service"
 	"net/http"
 	"strconv"
@@ -39,12 +38,7 @@ func (c *MediaController) Upload(ctx *gin.Context) {
 	}
 	title := ctx.PostForm("title")
 	userId := "user_id"
-	Media := &model.Media{
-		FileName: header.Filename,
-		Title:    title,
-		UserId:   userId,
-	}
-	video, err := c.service.Upload(ctx, Media)
+	video, err := c.service.Upload(ctx, userId, title, header.Filename)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return

@@ -2,7 +2,6 @@ package controller
 
 import (
 	"ms-api/app/httputil"
-	"ms-api/app/model"
 	"ms-api/app/service"
 	"net/http"
 	"strconv"
@@ -37,7 +36,7 @@ func (c *RateController) Get(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	userId := "user_id"
+	userId := "user_1"
 	rate, err := c.service.Get(ctx, videoId, userId)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
@@ -66,11 +65,8 @@ func (c *RateController) Add(ctx *gin.Context) {
 		return
 	}
 	userId := "user_id"
-	rate := &model.Rate{
-		VideoId: videoId,
-		UserId:  userId,
-	}
-	if err := c.service.Add(ctx, rate); err != nil {
+	rate, err := c.service.Add(ctx, userId, videoId)
+	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
 	}

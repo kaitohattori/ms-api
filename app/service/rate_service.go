@@ -23,6 +23,13 @@ func (s RateService) Average(ctx *gin.Context, videoId int) (*float32, error) {
 	return s.repository.Average(ctx, videoId)
 }
 
-func (s RateService) Add(ctx *gin.Context, rate *model.Rate) error {
-	return s.repository.Insert(ctx, rate)
+func (s RateService) Add(ctx *gin.Context, userId string, videoId int) (*model.Rate, error) {
+	rate := &model.Rate{
+		VideoId: videoId,
+		UserId:  userId,
+	}
+	if err := s.repository.Insert(ctx, rate); err != nil {
+		return nil, err
+	}
+	return rate, nil
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"ms-api/app/model"
 	"ms-api/app/repository"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,14 +24,30 @@ func (s VideoService) Get(ctx *gin.Context, videoId int) (*model.Video, error) {
 	return s.repository.FindOne(ctx, videoId)
 }
 
-func (s VideoService) Add(ctx *gin.Context, video *model.Video) error {
-	return s.repository.Insert(ctx, video)
+func (s VideoService) Add(ctx *gin.Context, userId string, addVideo *model.AddVideo) (*model.Video, error) {
+	video := &model.Video{
+		UserId: userId,
+	}
+	addVideo.SetParamsTo(video)
+	if err := s.repository.Insert(ctx, video); err != nil {
+		return nil, err
+	}
+	return video, nil
 }
 
-func (s VideoService) Update(ctx *gin.Context, video *model.Video) error {
-	return s.repository.Update(ctx, video)
+func (s VideoService) Update(ctx *gin.Context, userId string, videoId int, updateVideo *model.UpdateVideo) (*model.Video, error) {
+	video := &model.Video{
+		Id:        videoId,
+		UserId:    userId,
+		UpdatedAt: time.Now(),
+	}
+	updateVideo.SetParamsTo(video)
+	if err := s.repository.Update(ctx, video); err != nil {
+		return nil, err
+	}
+	return video, nil
 }
 
-func (s VideoService) Remove(ctx *gin.Context, videoId int) error {
+func (s VideoService) Remove(ctx *gin.Context, userId string, videoId int) error {
 	return s.repository.Delete(ctx, videoId)
 }
