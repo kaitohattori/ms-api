@@ -14,7 +14,7 @@ type Video struct {
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }
 
-func (Video) FindAll(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
+func (Video) FindAllSortedByViewCount(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
 	videos := []Video{}
 	ctxDB := DbConnection.WithContext(ctx)
 	// subQuery := ctxDB.Select("video_id", "count(id) as view_count").Table("views").Group("video_id")

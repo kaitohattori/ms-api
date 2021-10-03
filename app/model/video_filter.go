@@ -17,13 +17,13 @@ func NewVideoFilter(sortType VideoSortType, limit *int, userId *string) VideoFil
 type VideoSortType string
 
 const (
-	Popular     VideoSortType = "popular"
-	Recommended VideoSortType = "recommended"
+	VideoSortTypePopular     VideoSortType = "popular"
+	VideoSortTypeRecommended VideoSortType = "recommended"
 )
 
 func (v VideoSortType) Valid() error {
 	switch v {
-	case Popular, Recommended:
+	case VideoSortTypePopular, VideoSortTypeRecommended:
 		return nil
 	default:
 		return fmt.Errorf("failed: %w get %s", ErrInvalidType, v)

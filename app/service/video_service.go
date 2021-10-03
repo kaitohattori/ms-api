@@ -17,7 +17,13 @@ func NewVideoService(repository *repository.VideoRepository) *VideoService {
 }
 
 func (s VideoService) Find(ctx *gin.Context, filter model.VideoFilter) ([]model.Video, error) {
-	return s.repository.FindAll(ctx, filter)
+	if filter.SortType == model.VideoSortTypePopular {
+		return s.repository.FindAllSortedByViewCount(ctx, filter)
+	} else if filter.SortType == model.VideoSortTypeRecommended {
+		return []model.Video{}, nil
+	} else {
+		return nil, model.ErrRecordNotFound
+	}
 }
 
 func (s VideoService) Get(ctx *gin.Context, videoId int) (*model.Video, error) {
