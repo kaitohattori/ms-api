@@ -21,6 +21,6 @@ func (r RateRepository) Average(ctx *gin.Context, videoId int) (*float32, error)
 	return model.Rate.Average(model.Rate{}, ctx, videoId)
 }
 
-func (r RateRepository) Insert(ctx *gin.Context, rate *model.Rate) error {
-	return rate.Insert(ctx)
+func (r RateRepository) Update(ctx *gin.Context, rate *model.Rate) (*model.Rate, error) {
+	return rate.Update(ctx)
 }

@@ -2,7 +2,6 @@ package controller
 
 import (
 	"ms-api/app/httputil"
-	"ms-api/app/model"
 	"ms-api/app/service"
 	"net/http"
 	"strconv"
@@ -26,32 +25,25 @@ func NewMediaController(service *service.MediaService) *MediaController {
 // @Produce json
 // @Param file formData file true "Video File"
 // @Param title formData string true "Video Title"
-// @Success 200 {object} httputil.HTTPMessageResponse
+// @Success 200 {object} model.Video
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 404 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
 // @Router /videos/upload [post]
 func (c *MediaController) Upload(ctx *gin.Context) {
-	_, header, err := ctx.Request.FormFile("file")
+	file, header, err := ctx.Request.FormFile("file")
 	if err != nil {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	title := ctx.PostForm("title")
 	userId := "user_id"
-	Media := &model.Media{
-		FileName: header.Filename,
-		Title:    title,
-		UserId:   userId,
-	}
-	if err := c.service.Upload(ctx, Media); err != nil {
+	video, err := c.service.Upload(ctx, userId, title, file, *header)
+	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	resp := httputil.HTTPMessageResponse{
-		Message: "success",
-	}
-	ctx.JSON(http.StatusOK, resp)
+	ctx.JSON(http.StatusOK, video)
 }
 
 // VideoController GetThumbnailImage docs
@@ -78,5 +70,5 @@ func (c *MediaController) GetThumbnailImage(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, thumbnailImage)
+	ctx.Data(http.StatusOK, "image/jpeg", thumbnailImage.Bytes())
 }
