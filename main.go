@@ -8,7 +8,6 @@ import (
 	"ms-api/config"
 	_ "ms-api/docs"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	timeout "github.com/vearne/gin-timeout"
@@ -106,7 +105,7 @@ func main() {
 		}
 		videos.Use(
 			timeout.Timeout(
-				timeout.WithTimeout(config.Config.APITimeoutSec),
+				timeout.WithTimeout(config.Config.APITimeout),
 				timeout.WithErrorHttpCode(http.StatusRequestTimeout),
 				timeout.WithCallBack(func(r *http.Request) {
 					fmt.Println("Request Timeout : ", r.URL.String())
@@ -114,7 +113,7 @@ func main() {
 		)
 		views.Use(
 			timeout.Timeout(
-				timeout.WithTimeout(config.Config.APITimeoutSec),
+				timeout.WithTimeout(config.Config.APITimeout),
 				timeout.WithErrorHttpCode(http.StatusRequestTimeout),
 				timeout.WithCallBack(func(r *http.Request) {
 					fmt.Println("Request Timeout : ", r.URL.String())
@@ -122,7 +121,7 @@ func main() {
 		)
 		rates.Use(
 			timeout.Timeout(
-				timeout.WithTimeout(config.Config.APITimeoutSec),
+				timeout.WithTimeout(config.Config.APITimeout),
 				timeout.WithErrorHttpCode(http.StatusRequestTimeout),
 				timeout.WithCallBack(func(r *http.Request) {
 					fmt.Println("Request Timeout : ", r.URL.String())
@@ -130,7 +129,7 @@ func main() {
 		)
 		media.Use(
 			timeout.Timeout(
-				timeout.WithTimeout(60*time.Second),
+				timeout.WithTimeout(config.Config.APIMediaTimeout),
 				timeout.WithErrorHttpCode(http.StatusRequestTimeout),
 				timeout.WithCallBack(func(r *http.Request) {
 					fmt.Println("Request Timeout : ", r.URL.String())
@@ -138,5 +137,5 @@ func main() {
 		)
 	}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.Run(":8080")
+	r.Run(fmt.Sprintf(":%d", config.Config.WebAPIPort))
 }

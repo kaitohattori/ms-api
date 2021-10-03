@@ -19,7 +19,8 @@ type ConfigList struct {
 	RecommendationAPIHost string
 	RecommendationAPIPort int
 
-	APITimeoutSec time.Duration
+	APITimeout      time.Duration
+	APIMediaTimeout time.Duration
 
 	DbHost     string
 	DbPort     int
@@ -60,7 +61,8 @@ func init() {
 		StreamAPIPort:         cfg.Section("api").Key("stream_api_port").MustInt(),
 		RecommendationAPIHost: cfg.Section("api").Key("recommendation_api_host").String(),
 		RecommendationAPIPort: cfg.Section("api").Key("recommendation_api_port").MustInt(),
-		APITimeoutSec:         time.Duration(cfg.Section("api").Key("timeout_sec").MustInt()) * time.Second,
+		APITimeout:            time.Duration(cfg.Section("api").Key("timeout_sec").MustInt()) * time.Second,
+		APIMediaTimeout:       time.Duration(cfg.Section("api").Key("media_timeout_sec").MustInt()) * time.Second,
 		DbHost:                cfg.Section("db").Key("db_host").String(),
 		DbPort:                cfg.Section("db").Key("db_port").MustInt(),
 		DbDriver:              cfg.Section("db").Key("db_driver").String(),
