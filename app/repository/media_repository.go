@@ -17,6 +17,6 @@ func (r MediaRepository) Upload(ctx *gin.Context, media *model.Media) (*model.Vi
 	return media.Upload(ctx)
 }
 
-func (r MediaRepository) GetThumbnailImage(ctx *gin.Context, videoId int) (model.ThumbnailImage, error) {
-	return model.Media.GetThumbnailImage(model.Media{}, ctx, videoId)
+func (r MediaRepository) GetThumbnailImage(ctx *gin.Context, videoId int) (*model.ThumbnailImage, error) {
+	return model.ThumbnailImage.Get(model.ThumbnailImage{}, ctx, videoId)
 }

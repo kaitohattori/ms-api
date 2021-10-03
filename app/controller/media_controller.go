@@ -70,5 +70,5 @@ func (c *MediaController) GetThumbnailImage(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, thumbnailImage)
+	ctx.Data(http.StatusOK, "image/jpeg", thumbnailImage.Bytes())
 }

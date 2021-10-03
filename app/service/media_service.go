@@ -26,6 +26,6 @@ func (s MediaService) Upload(ctx *gin.Context, userId string, title string, file
 	return s.repository.Upload(ctx, media)
 }
 
-func (s MediaService) GetThumbnailImage(ctx *gin.Context, videoId int) (model.ThumbnailImage, error) {
+func (s MediaService) GetThumbnailImage(ctx *gin.Context, videoId int) (*model.ThumbnailImage, error) {
 	return s.repository.GetThumbnailImage(ctx, videoId)
 }
