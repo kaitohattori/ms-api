@@ -1,9 +1,10 @@
+# go
+go.sum
+main
+
 # swagger
 /docs
 
 # app
 /config/config.ini
 /assets
-
-# go
-go.sum
