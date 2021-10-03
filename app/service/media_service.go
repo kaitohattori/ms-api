@@ -1,6 +1,7 @@
 package service
 
 import (
+	"mime/multipart"
 	"ms-api/app/model"
 	"ms-api/app/repository"
 
@@ -15,11 +16,12 @@ func NewMediaService(repository *repository.MediaRepository) *MediaService {
 	return &MediaService{repository: repository}
 }
 
-func (s MediaService) Upload(ctx *gin.Context, userId string, title string, filename string) (*model.Video, error) {
+func (s MediaService) Upload(ctx *gin.Context, userId string, title string, file multipart.File, header multipart.FileHeader) (*model.Video, error) {
 	media := &model.Media{
-		FileName: filename,
-		Title:    title,
-		UserId:   userId,
+		File:       file,
+		FileHeader: header,
+		Title:      title,
+		UserId:     userId,
 	}
 	return s.repository.Upload(ctx, media)
 }

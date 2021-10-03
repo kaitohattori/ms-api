@@ -31,14 +31,14 @@ func NewMediaController(service *service.MediaService) *MediaController {
 // @Failure 500 {object} httputil.HTTPError
 // @Router /videos/upload [post]
 func (c *MediaController) Upload(ctx *gin.Context) {
-	_, header, err := ctx.Request.FormFile("file")
+	file, header, err := ctx.Request.FormFile("file")
 	if err != nil {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	title := ctx.PostForm("title")
 	userId := "user_id"
-	video, err := c.service.Upload(ctx, userId, title, header.Filename)
+	video, err := c.service.Upload(ctx, userId, title, file, *header)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return

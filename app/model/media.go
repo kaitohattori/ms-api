@@ -2,6 +2,7 @@ package model
 
 import (
 	"io"
+	"mime/multipart"
 	"ms-api/app/util"
 	"time"
 
@@ -9,9 +10,10 @@ import (
 )
 
 type Media struct {
-	FileName string
-	Title    string
-	UserId   string
+	File       multipart.File
+	FileHeader multipart.FileHeader
+	Title      string
+	UserId     string
 }
 
 type ThumbnailImage *io.ReadCloser
@@ -33,11 +35,12 @@ func (m *Media) Upload(ctx *gin.Context) (*Video, error) {
 		return nil, err
 	}
 	// Save video
-	if err := util.MediaUtil.SaveVideo(m.FileName, *dirPath); err != nil {
+	videoFilePath, err := util.MediaUtil.SaveVideo(m.File, m.FileHeader, *dirPath)
+	if err != nil {
 		return nil, err
 	}
 	// Process video
-	if err := util.MediaUtil.ProcessVideo(ctx, video.Id, *dirPath); err != nil {
+	if err := util.MediaUtil.ProcessVideo(ctx, video.Id, *videoFilePath); err != nil {
 		return nil, err
 	}
 	// Delete working directory
