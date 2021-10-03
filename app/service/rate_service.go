@@ -3,6 +3,7 @@ package service
 import (
 	"ms-api/app/model"
 	"ms-api/app/repository"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,13 +24,17 @@ func (s RateService) Average(ctx *gin.Context, videoId int) (*float32, error) {
 	return s.repository.Average(ctx, videoId)
 }
 
-func (s RateService) Add(ctx *gin.Context, userId string, videoId int) (*model.Rate, error) {
+func (s RateService) Update(ctx *gin.Context, userId string, videoId int, value float32) (*model.Rate, error) {
+	now := time.Now()
 	rate := &model.Rate{
-		VideoId: videoId,
-		UserId:  userId,
+		VideoId:   videoId,
+		UserId:    userId,
+		Value:     value,
+		UpdatedAt: &now,
 	}
-	if err := s.repository.Insert(ctx, rate); err != nil {
+	updatedRate, err := s.repository.Update(ctx, rate)
+	if err != nil {
 		return nil, err
 	}
-	return rate, nil
+	return updatedRate, nil
 }

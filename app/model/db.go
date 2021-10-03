@@ -89,12 +89,14 @@ func init() {
 		}
 		db.Create(&view)
 
+		now := time.Now()
+
 		rate := Rate{
 			UserId:    fmt.Sprintf("user_%d", id),
 			VideoId:   video.Id,
 			Value:     3,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+			CreatedAt: &now,
+			UpdatedAt: &now,
 		}
 		db.Create(&rate)
 	}

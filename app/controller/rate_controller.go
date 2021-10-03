@@ -36,7 +36,7 @@ func (c *RateController) Get(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	userId := "user_1"
+	userId := "user_id"
 	rate, err := c.service.Get(ctx, videoId, userId)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
@@ -45,27 +45,34 @@ func (c *RateController) Get(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, rate)
 }
 
-// RateController Add docs
-// @Summary Add a Rate
-// @Description add Rate
+// RateController Update docs
+// @Summary Update rate
+// @Description update Rate
 // @Tags Rates
 // @Accept json
 // @Produce json
 // @Param id path int true "Video ID"
+// @Param value query float32 true "Rate value"
 // @Success 200 {object} model.Rate
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 404 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
 // @Router /videos/{id}/rate [post]
-func (c *RateController) Add(ctx *gin.Context) {
+func (c *RateController) Update(ctx *gin.Context) {
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
+	valueStr := ctx.Query("value")
+	value, err := strconv.ParseFloat(valueStr, 32)
+	if err != nil {
+		httputil.NewError(ctx, http.StatusBadRequest, err)
+		return
+	}
 	userId := "user_id"
-	rate, err := c.service.Add(ctx, userId, videoId)
+	rate, err := c.service.Update(ctx, userId, videoId, float32(value))
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return

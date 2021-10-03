@@ -96,7 +96,7 @@ func main() {
 		{
 			rates.GET(":id/rate", rateController.Get)
 			rates.GET(":id/rate/average", rateController.Average)
-			rates.POST(":id/rate", rateController.Add)
+			rates.POST(":id/rate", rateController.Update)
 		}
 		media := v1.Group("/videos")
 		{

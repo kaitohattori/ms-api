@@ -4,15 +4,16 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm/clause"
 )
 
 type Rate struct {
-	Id        int       `json:"id" gorm:"primaryKey"`
-	UserId    string    `json:"userId,omitempty"`
-	VideoId   int       `json:"videoId,omitempty"`
-	Value     float32   `json:"value,omitempty"`
-	CreatedAt time.Time `json:"createdAt,omitempty"`
-	UpdatedAt time.Time `json:"updatedAt,omitempty"`
+	Id        int        `json:"id" gorm:"unique;autoIncrement;not null"`
+	UserId    string     `json:"userId,omitempty" gorm:"primaryKey"`
+	VideoId   int        `json:"videoId,omitempty" gorm:"primaryKey"`
+	Value     float32    `json:"value,omitempty"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 }
 
 func (Rate) FindOne(ctx *gin.Context, videoId int, userId string) (*Rate, error) {
@@ -52,16 +53,22 @@ func (Rate) Average(ctx *gin.Context, videoId int) (*float32, error) {
 	}
 }
 
-func (r *Rate) Insert(ctx *gin.Context) error {
-	ctxDB := DbConnection.WithContext(ctx.Request.Context())
-	if err := ctxDB.Create(&r).Error; err != nil {
-		return err
+func (r *Rate) Update(ctx *gin.Context) (*Rate, error) {
+	ctxDB := DbConnection.WithContext(ctx)
+	ctxDB.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "video_id"}, {Name: "user_id"}},
+		DoUpdates: clause.AssignmentColumns([]string{"value", "updated_at"}),
+	}).Create(&r)
+
+	rate, err := Rate.FindOne(Rate{}, ctx, r.VideoId, r.UserId)
+	if err != nil {
+		return nil, err
 	}
 
 	select {
 	case <-ctx.Done():
-		return ctx.Err()
+		return nil, ctx.Err()
 	default:
-		return nil
+		return rate, nil
 	}
 }
