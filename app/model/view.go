@@ -17,14 +17,24 @@ type View struct {
 func (View) Count(ctx *gin.Context, videoId int) (*int, error) {
 	var count int64
 	ctxDB := DbConnection.WithContext(ctx.Request.Context())
-	ctxDB.Model(&View{}).Where("video_id = ?", videoId).Count(&count)
-	count2 := int(count)
-	return &count2, nil
+	if err := ctxDB.Model(&View{}).Where("video_id = ?", videoId).Count(&count).Error; err != nil {
+		return nil, err
+	}
+	int_count := int(count)
+
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
+		return &int_count, nil
+	}
 }
 
 func (v *View) Insert(ctx *gin.Context) error {
 	ctxDB := DbConnection.WithContext(ctx.Request.Context())
-	ctxDB.Create(&v)
+	if err := ctxDB.Create(&v).Error; err != nil {
+		return err
+	}
 
 	select {
 	case <-ctx.Done():

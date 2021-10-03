@@ -23,10 +23,12 @@ func (m *Media) Upload(ctx *gin.Context) (*Video, error) {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	video.Insert(ctx)
+	if err := video.Insert(ctx); err != nil {
+		return nil, err
+	}
 
 	// Make working directory
-	dirPath, err := util.MediaUtil.MakeDirForVideoProcess(video.Id)
+	dirPath, err := util.MediaUtil.MakeWorkingDirectory(video.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +41,7 @@ func (m *Media) Upload(ctx *gin.Context) (*Video, error) {
 		return nil, err
 	}
 	// Delete working directory
-	util.MediaUtil.DeleteDirForVideoProcess(*dirPath)
+	util.MediaUtil.DeleteWorkingDirectory(*dirPath)
 
 	select {
 	case <-ctx.Done():

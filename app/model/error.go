@@ -9,4 +9,6 @@ var (
 	ErrInvalidType = errors.New("invalid type")
 
 	ErrNameInvalid = errors.New("name is empty")
+
+	ErrRecordNotFound = errors.New("not found")
 )

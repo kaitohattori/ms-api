@@ -41,7 +41,9 @@ func (Video) FindAll(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
 func (Video) FindOne(ctx *gin.Context, videoId int) (*Video, error) {
 	video := Video{}
 	ctxDB := DbConnection.WithContext(ctx.Request.Context())
-	ctxDB.First(&video, videoId)
+	if err := ctxDB.First(&video, videoId).Error; err != nil {
+		return nil, err
+	}
 
 	select {
 	case <-ctx.Done():
@@ -53,7 +55,9 @@ func (Video) FindOne(ctx *gin.Context, videoId int) (*Video, error) {
 
 func (v *Video) Insert(ctx *gin.Context) error {
 	ctxDB := DbConnection.WithContext(ctx.Request.Context())
-	ctxDB.Create(&v)
+	if err := ctxDB.Create(&v).Error; err != nil {
+		return err
+	}
 
 	select {
 	case <-ctx.Done():
@@ -65,7 +69,9 @@ func (v *Video) Insert(ctx *gin.Context) error {
 
 func (v *Video) Update(ctx *gin.Context) error {
 	ctxDB := DbConnection.WithContext(ctx.Request.Context())
-	ctxDB.Save(&v)
+	if err := ctxDB.Save(&v).Error; err != nil {
+		return err
+	}
 
 	select {
 	case <-ctx.Done():
@@ -77,7 +83,9 @@ func (v *Video) Update(ctx *gin.Context) error {
 
 func (v *Video) Delete(ctx *gin.Context) error {
 	ctxDB := DbConnection.WithContext(ctx.Request.Context())
-	ctxDB.Delete(&v)
+	if err := ctxDB.Delete(&v).Error; err != nil {
+		return err
+	}
 
 	select {
 	case <-ctx.Done():

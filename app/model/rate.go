@@ -18,7 +18,10 @@ type Rate struct {
 func (Rate) FindOne(ctx *gin.Context, videoId int, userId string) (*Rate, error) {
 	rate := Rate{}
 	ctxDB := DbConnection.WithContext(ctx.Request.Context())
-	ctxDB.Where("video_id = ? AND user_id = ?", videoId, userId).First(&rate)
+	err := ctxDB.Where("video_id = ? AND user_id = ?", videoId, userId).First(&rate).Error
+	if err != nil {
+		return nil, err
+	}
 
 	select {
 	case <-ctx.Done():
@@ -33,9 +36,12 @@ func (Rate) Average(ctx *gin.Context, videoId int) (*float32, error) {
 		Average float32
 	}{}
 	ctxDB := DbConnection.WithContext(ctx)
-	ctxDB.Model(&Rate{}).Select("avg(value) as average").Group("video_id").Having("video_id = ?", videoId).Find(&temp)
+	err := ctxDB.Model(&Rate{}).Select("avg(value) as average").Group("video_id").Having("video_id = ?", videoId).Find(&temp).Error
+	if err != nil {
+		return nil, err
+	}
 	if len(temp) == 0 {
-		return nil, nil // TODO: err = Not Found
+		return nil, ErrRecordNotFound
 	}
 
 	select {
@@ -48,7 +54,9 @@ func (Rate) Average(ctx *gin.Context, videoId int) (*float32, error) {
 
 func (r *Rate) Insert(ctx *gin.Context) error {
 	ctxDB := DbConnection.WithContext(ctx.Request.Context())
-	ctxDB.Create(&r)
+	if err := ctxDB.Create(&r).Error; err != nil {
+		return err
+	}
 
 	select {
 	case <-ctx.Done():

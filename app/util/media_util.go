@@ -15,7 +15,7 @@ var MediaUtil = MediaUtilFuncs{}
 
 type MediaUtilFuncs struct{}
 
-func (_ MediaUtilFuncs) MakeDirForVideoProcess(videoId int) (*string, error) {
+func (_ MediaUtilFuncs) MakeWorkingDirectory(videoId int) (*string, error) {
 	path := fmt.Sprintf("assets/tmp/%d", videoId)
 	if err := os.MkdirAll(path, 0777); err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func (_ MediaUtilFuncs) MakeDirForVideoProcess(videoId int) (*string, error) {
 	return &path, nil
 }
 
-func (_ MediaUtilFuncs) DeleteDirForVideoProcess(dirPath string) error {
+func (_ MediaUtilFuncs) DeleteWorkingDirectory(dirPath string) error {
 	return os.RemoveAll(dirPath)
 }
 
