@@ -17,14 +17,18 @@ type Video struct {
 func (Video) FindAll(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
 	videos := []Video{}
 	ctxDB := DbConnection.WithContext(ctx)
-	subQuery := ctxDB.Model(&View{}).Select("video_id", "count(id) as view_count").Group("video_id")
-	query := ctxDB.Model(&Video{}).Joins("left join (?) as views on videos.id = views.video_id", subQuery)
+	// subQuery := ctxDB.Select("video_id", "count(id) as view_count").Table("views").Group("video_id")
+	// subQuery := fmt.Sprintf("select video_id, count(id) as view_count from views group by video_id")
+	// subQuery := "select video_id, count(id) as view_count from views group by video_id"
+	// query := ctxDB.Model(&Video{}).Joins("left join (?) as v on videos.id = v.video_id", subQuery)
+	// TODO: もうちょっとかっこよく書きたい
+	query := ctxDB.Model(&Video{}).Joins("left join (select video_id, count(id) as view_count from views group by video_id) as v on videos.id = v.video_id")
 	if filter.UserId != nil && *filter.UserId != "" {
-		query = query.Where("UserId = ?", filter.UserId)
+		query.Where("user_id = ?", filter.UserId)
 	}
-	query = query.Order("COALESCE(view_count, 0) desc")
+	query.Order("COALESCE(view_count, 0) desc")
 	if filter.Limit != nil && *filter.Limit != 0 {
-		query = query.Limit(*filter.Limit)
+		query.Limit(*filter.Limit)
 	}
 	query.Find(&videos)
 

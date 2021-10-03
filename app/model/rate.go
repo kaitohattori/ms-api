@@ -32,15 +32,15 @@ func (Rate) FindOne(ctx *gin.Context, videoId int, userId string) (*Rate, error)
 }
 
 func (Rate) Average(ctx *gin.Context, videoId int) (*float32, error) {
-	temp := []struct {
+	result := []struct {
 		Average float32
 	}{}
 	ctxDB := DbConnection.WithContext(ctx)
-	err := ctxDB.Model(&Rate{}).Select("avg(value) as average").Group("video_id").Having("video_id = ?", videoId).Find(&temp).Error
+	err := ctxDB.Model(&Rate{}).Select("avg(value) as average").Group("video_id").Having("video_id = ?", videoId).Find(&result).Error
 	if err != nil {
 		return nil, err
 	}
-	if len(temp) == 0 {
+	if len(result) == 0 {
 		return nil, ErrRecordNotFound
 	}
 
@@ -48,7 +48,7 @@ func (Rate) Average(ctx *gin.Context, videoId int) (*float32, error) {
 	case <-ctx.Done():
 		return nil, ctx.Err()
 	default:
-		return &temp[0].Average, nil
+		return &result[0].Average, nil
 	}
 }
 

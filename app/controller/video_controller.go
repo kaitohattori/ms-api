@@ -7,7 +7,6 @@ import (
 	"ms-api/app/service"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -35,12 +34,6 @@ func NewVideoController(service *service.VideoService) *VideoController {
 // @Failure 500 {object} httputil.HTTPError
 // @Router /videos [get]
 func (c *VideoController) Find(ctx *gin.Context) {
-	// cn, cancel := context.WithTimeout(ctx.Request.Context(), 1*time.Second)
-	// defer cancel()
-	// ctx.Request = ctx.Request.WithContext(cn)
-
-	time.Sleep(3 * time.Second)
-
 	sortTypeStr := ctx.Query("sortType")
 	userId := ctx.Query("userId")
 	limitStr := ctx.Query("limit")

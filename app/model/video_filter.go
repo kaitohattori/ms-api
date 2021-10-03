@@ -18,7 +18,7 @@ type VideoSortType string
 
 const (
 	Popular     VideoSortType = "popular"
-	Recommended               = "recommended"
+	Recommended VideoSortType = "recommended"
 )
 
 func (v VideoSortType) Valid() error {
