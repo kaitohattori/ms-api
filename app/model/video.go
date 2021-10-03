@@ -1,6 +1,11 @@
 package model
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"ms-api/config"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -33,6 +38,32 @@ func (Video) FindAllSortedByViewCount(ctx *gin.Context, filter VideoFilter) ([]V
 	query.Find(&videos)
 
 	// ctxDB.Model(&Video{}).Find(&videos)
+
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
+		return videos, nil
+	}
+}
+
+func (Video) FindAllRecommended(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
+	videos := []Video{}
+	url := fmt.Sprintf("%s/videos/recommended?userId=%s&limit=%d", config.Config.RecommendationAPIURL(), *filter.UserId, *filter.Limit)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx.Request.Context())
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	byteArray, _ := ioutil.ReadAll(resp.Body)
+	err = json.Unmarshal(byteArray, &videos)
+	if err != nil {
+		return nil, err
+	}
 
 	select {
 	case <-ctx.Done():

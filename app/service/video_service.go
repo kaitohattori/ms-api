@@ -20,7 +20,7 @@ func (s VideoService) Find(ctx *gin.Context, filter model.VideoFilter) ([]model.
 	if filter.SortType == model.VideoSortTypePopular {
 		return s.repository.FindAllSortedByViewCount(ctx, filter)
 	} else if filter.SortType == model.VideoSortTypeRecommended {
-		return []model.Video{}, nil
+		return s.repository.FindAllRecommended(ctx, filter)
 	} else {
 		return nil, model.ErrRecordNotFound
 	}
