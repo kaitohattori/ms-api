@@ -5,6 +5,7 @@ import (
 	"ms-api/app/controller"
 	"ms-api/app/repository"
 	"ms-api/app/service"
+	"ms-api/app/util"
 	"ms-api/config"
 	_ "ms-api/docs"
 	"net/http"
@@ -59,7 +60,18 @@ import (
 // @scope.admin Grants read and write access to administrative information
 
 func main() {
+	StartServer()
+}
+
+func StartServer() {
 	r := gin.Default()
+
+	authUtil := util.NewAuthUtil(
+		config.Config.Auth0Identifier,
+		config.Config.Auth0Domain,
+		config.Config.AuthHost,
+	)
+	r.Use(authUtil.CorsMiddleware())
 
 	videoRepository := repository.NewVideoRepository()
 	videoService := service.NewVideoService(videoRepository)
@@ -94,9 +106,9 @@ func main() {
 		}
 		rates := v1.Group("/videos")
 		{
-			rates.GET(":id/rate", rateController.Get)
+			rates.GET(":id/rate", authUtil.CheckJWT(), rateController.Get)
 			rates.GET(":id/rate/average", rateController.Average)
-			rates.POST(":id/rate", rateController.Update)
+			rates.POST(":id/rate", authUtil.CheckJWT(), rateController.Update)
 		}
 		media := v1.Group("/videos")
 		{
