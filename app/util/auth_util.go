@@ -43,10 +43,6 @@ func NewAuthUtil(identifer string, domain string, host string) AuthUtil {
 			if !checkIss {
 				return token, errors.New("Invalid issuer.")
 			}
-			// Get sub
-			claims := token.Claims.(jwt.MapClaims)
-			sub := claims["sub"].(string)
-			fmt.Println(sub)
 			// Get pem certification
 			cert, err := AuthUtil.GetPemCert(AuthUtil{}, token)
 			if err != nil {
@@ -114,4 +110,11 @@ func (AuthUtil) GetPemCert(token *jwt.Token) (*string, error) {
 		return nil, err
 	}
 	return &cert, nil
+}
+
+func (AuthUtil) GetUserId(ctx *gin.Context) string {
+	user := ctx.Request.Context().Value("user")
+	claims := user.(*jwt.Token).Claims.(jwt.MapClaims)
+	sub := claims["sub"].(string)
+	return sub
 }
