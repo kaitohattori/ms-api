@@ -5,6 +5,7 @@ import (
 	"ms-api/app/httputil"
 	"ms-api/app/model"
 	"ms-api/app/service"
+	"ms-api/app/util"
 	"net/http"
 	"strconv"
 
@@ -106,6 +107,7 @@ func (c *VideoController) Get(ctx *gin.Context) {
 // @Tags Videos
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Bearer"
 // @Param video body model.AddVideo true "Add video"
 // @Success 200 {object} model.Video
 // @Failure 400 {object} httputil.HTTPError
@@ -113,6 +115,7 @@ func (c *VideoController) Get(ctx *gin.Context) {
 // @Failure 500 {object} httputil.HTTPError
 // @Router /videos [post]
 func (c *VideoController) Add(ctx *gin.Context) {
+	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
 	var addVideo model.AddVideo
 	if err := ctx.ShouldBindJSON(&addVideo); err != nil {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
@@ -122,7 +125,6 @@ func (c *VideoController) Add(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	userId := "user_id"
 	video, err := c.service.Add(ctx, userId, &addVideo)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
@@ -137,6 +139,7 @@ func (c *VideoController) Add(ctx *gin.Context) {
 // @Tags Videos
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Bearer"
 // @Param id path int true "Video ID"
 // @Param video body model.UpdateVideo true "Update video"
 // @Success 200 {object} model.Video
@@ -145,6 +148,7 @@ func (c *VideoController) Add(ctx *gin.Context) {
 // @Failure 500 {object} httputil.HTTPError
 // @Router /videos/{id} [post]
 func (c *VideoController) Update(ctx *gin.Context) {
+	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
@@ -160,7 +164,6 @@ func (c *VideoController) Update(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	userId := "user_id"
 	video, err := c.service.Update(ctx, userId, videoId, &updateVideo)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
@@ -175,6 +178,7 @@ func (c *VideoController) Update(ctx *gin.Context) {
 // @Tags Videos
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Bearer"
 // @Param id path int true "Video ID"
 // @Success 200 {object} httputil.HTTPMessageResponse
 // @Failure 400 {object} httputil.HTTPError
@@ -182,13 +186,13 @@ func (c *VideoController) Update(ctx *gin.Context) {
 // @Failure 500 {object} httputil.HTTPError
 // @Router /videos/{id} [delete]
 func (c *VideoController) Delete(ctx *gin.Context) {
+	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	userId := "user_id"
 	if err = c.service.Remove(ctx, userId, videoId); err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
 		return

@@ -3,6 +3,7 @@ package controller
 import (
 	"ms-api/app/httputil"
 	"ms-api/app/service"
+	"ms-api/app/util"
 	"net/http"
 	"strconv"
 
@@ -53,6 +54,7 @@ func (c *ViewController) Total(ctx *gin.Context) {
 // @Tags Views
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Bearer"
 // @Param id path int true "Video ID"
 // @Success 200 {object} model.View
 // @Failure 400 {object} httputil.HTTPError
@@ -60,13 +62,13 @@ func (c *ViewController) Total(ctx *gin.Context) {
 // @Failure 500 {object} httputil.HTTPError
 // @Router /videos/{id}/view [post]
 func (c *ViewController) Add(ctx *gin.Context) {
+	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	userId := "user_id"
 	view, err := c.service.Add(ctx, userId, videoId)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)

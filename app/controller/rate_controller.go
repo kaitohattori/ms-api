@@ -3,6 +3,7 @@ package controller
 import (
 	"ms-api/app/httputil"
 	"ms-api/app/service"
+	"ms-api/app/util"
 	"net/http"
 	"strconv"
 
@@ -31,13 +32,13 @@ func NewRateController(service *service.RateService) *RateController {
 // @Failure 500 {object} httputil.HTTPError
 // @Router /videos/{id}/rate [get]
 func (c *RateController) Get(ctx *gin.Context) {
+	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	userId := "user_id"
 	rate, err := c.service.Get(ctx, videoId, userId)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)
@@ -61,6 +62,7 @@ func (c *RateController) Get(ctx *gin.Context) {
 // @Failure 500 {object} httputil.HTTPError
 // @Router /videos/{id}/rate [post]
 func (c *RateController) Update(ctx *gin.Context) {
+	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
@@ -73,7 +75,6 @@ func (c *RateController) Update(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	userId := "user_id"
 	rate, err := c.service.Update(ctx, userId, videoId, float32(value))
 	if err != nil {
 		httputil.NewError(ctx, http.StatusNotFound, err)

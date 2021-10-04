@@ -95,14 +95,14 @@ func StartServer() {
 		{
 			videos.GET("", videoController.Find)
 			videos.GET(":id", videoController.Get)
-			videos.POST("", videoController.Add)
-			videos.POST(":id", videoController.Update)
-			videos.DELETE(":id", videoController.Delete)
+			videos.POST("", authUtil.CheckJWT(), videoController.Add)
+			videos.POST(":id", authUtil.CheckJWT(), videoController.Update)
+			videos.DELETE(":id", authUtil.CheckJWT(), videoController.Delete)
 		}
 		views := v1.Group("/videos")
 		{
 			views.GET(":id/view/total", viewController.Total)
-			views.POST(":id/view", viewController.Add)
+			views.POST(":id/view", authUtil.CheckJWT(), viewController.Add)
 		}
 		rates := v1.Group("/videos")
 		{
@@ -113,7 +113,7 @@ func StartServer() {
 		media := v1.Group("/videos")
 		{
 			media.GET(":id/thumbnail", mediaController.GetThumbnailImage)
-			media.POST("upload", mediaController.Upload)
+			media.POST("upload", authUtil.CheckJWT(), mediaController.Upload)
 		}
 		videos.Use(
 			timeout.Timeout(
