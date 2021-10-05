@@ -5,6 +5,9 @@
 ```
 # GO111MODULEをオンにする
 $ export GO111MODULE=on
+
+# mod.modとgo.sumの差でエラーが出たら以下のコマンドを実行
+$ go mod tidy
 ```
 
 ## 動作
