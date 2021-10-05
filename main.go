@@ -5,6 +5,7 @@ import (
 	"ms-api/app/controller"
 	"ms-api/app/repository"
 	"ms-api/app/service"
+	"ms-api/app/util"
 	"ms-api/config"
 	_ "ms-api/docs"
 	"net/http"
@@ -31,35 +32,23 @@ import (
 // @host localhost:8080
 // @BasePath /api/v1
 
-// @securityDefinitions.basic BasicAuth
-
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
 // @name Authorization
 
-// @securitydefinitions.oauth2.application OAuth2Application
-// @tokenUrl https://example.com/oauth/token
-// @scope.write Grants write access
-// @scope.admin Grants read and write access to administrative information
-
-// @securitydefinitions.oauth2.implicit OAuth2Implicit
-// @authorizationUrl https://example.com/oauth/authorize
-// @scope.write Grants write access
-// @scope.admin Grants read and write access to administrative information
-
-// @securitydefinitions.oauth2.password OAuth2Password
-// @tokenUrl https://example.com/oauth/token
-// @scope.read Grants read access
-// @scope.write Grants write access
-// @scope.admin Grants read and write access to administrative information
-
-// @securitydefinitions.oauth2.accessCode OAuth2AccessCode
-// @tokenUrl https://example.com/oauth/token
-// @authorizationUrl https://example.com/oauth/authorize
-// @scope.admin Grants read and write access to administrative information
-
 func main() {
+	StartServer()
+}
+
+func StartServer() {
 	r := gin.Default()
+
+	authUtil := util.NewAuthUtil(
+		config.Config.Auth0Identifier,
+		config.Config.Auth0Domain,
+		config.Config.AuthHost,
+	)
+	r.Use(authUtil.CorsMiddleware())
 
 	videoRepository := repository.NewVideoRepository()
 	videoService := service.NewVideoService(videoRepository)
@@ -83,25 +72,25 @@ func main() {
 		{
 			videos.GET("", videoController.Find)
 			videos.GET(":id", videoController.Get)
-			videos.POST("", videoController.Add)
-			videos.POST(":id", videoController.Update)
-			videos.DELETE(":id", videoController.Delete)
+			videos.POST("", authUtil.CheckJWT(), videoController.Add)
+			videos.POST(":id", authUtil.CheckJWT(), videoController.Update)
+			videos.DELETE(":id", authUtil.CheckJWT(), videoController.Delete)
 		}
 		views := v1.Group("/videos")
 		{
 			views.GET(":id/view/total", viewController.Total)
-			views.POST(":id/view", viewController.Add)
+			views.POST(":id/view", authUtil.CheckJWT(), viewController.Add)
 		}
 		rates := v1.Group("/videos")
 		{
-			rates.GET(":id/rate", rateController.Get)
+			rates.GET(":id/rate", authUtil.CheckJWT(), rateController.Get)
 			rates.GET(":id/rate/average", rateController.Average)
-			rates.POST(":id/rate", rateController.Update)
+			rates.POST(":id/rate", authUtil.CheckJWT(), rateController.Update)
 		}
 		media := v1.Group("/videos")
 		{
 			media.GET(":id/thumbnail", mediaController.GetThumbnailImage)
-			media.POST("upload", mediaController.Upload)
+			media.POST("upload", authUtil.CheckJWT(), mediaController.Upload)
 		}
 		videos.Use(
 			timeout.Timeout(
