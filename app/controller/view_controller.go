@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"ms-api/app/httputil"
 	"ms-api/app/service"
 	"ms-api/app/util"
 	"net/http"
@@ -25,24 +24,24 @@ func NewViewController(service *service.ViewService) *ViewController {
 // @Accept json
 // @Produce json
 // @Param id path int true "Video ID"
-// @Success 200 {object} httputil.HTTPValueResponse
-// @Failure 400 {object} httputil.HTTPError
-// @Failure 404 {object} httputil.HTTPError
-// @Failure 500 {object} httputil.HTTPError
+// @Success 200 {object} util.HTTPValueResponse
+// @Failure 400 {object} util.HTTPError
+// @Failure 404 {object} util.HTTPError
+// @Failure 500 {object} util.HTTPError
 // @Router /videos/{id}/view/total [get]
 func (c *ViewController) Total(ctx *gin.Context) {
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
-		httputil.NewError(ctx, http.StatusBadRequest, err)
+		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	total, err := c.service.Total(ctx, videoId)
 	if err != nil {
-		httputil.NewError(ctx, http.StatusNotFound, err)
+		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	resp := httputil.HTTPValueResponse{
+	resp := util.HTTPValueResponse{
 		Value: *total,
 	}
 	ctx.JSON(http.StatusOK, resp)
@@ -57,21 +56,21 @@ func (c *ViewController) Total(ctx *gin.Context) {
 // @Security ApiKeyAuth
 // @Param id path int true "Video ID"
 // @Success 200 {object} model.View
-// @Failure 400 {object} httputil.HTTPError
-// @Failure 404 {object} httputil.HTTPError
-// @Failure 500 {object} httputil.HTTPError
+// @Failure 400 {object} util.HTTPError
+// @Failure 404 {object} util.HTTPError
+// @Failure 500 {object} util.HTTPError
 // @Router /videos/{id}/view [post]
 func (c *ViewController) Add(ctx *gin.Context) {
 	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
-		httputil.NewError(ctx, http.StatusBadRequest, err)
+		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	view, err := c.service.Add(ctx, userId, videoId)
 	if err != nil {
-		httputil.NewError(ctx, http.StatusNotFound, err)
+		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, view)
