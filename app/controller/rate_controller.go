@@ -24,7 +24,7 @@ func NewRateController(service *service.RateService) *RateController {
 // @Tags Rates
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer"
+// @Security ApiKeyAuth
 // @Param id path int true "Video ID"
 // @Success 200 {object} model.Rate
 // @Failure 400 {object} httputil.HTTPError
@@ -53,7 +53,7 @@ func (c *RateController) Get(ctx *gin.Context) {
 // @Tags Rates
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer"
+// @Security ApiKeyAuth
 // @Param id path int true "Video ID"
 // @Param value query float32 true "Rate value"
 // @Success 200 {object} model.Rate

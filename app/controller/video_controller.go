@@ -107,7 +107,7 @@ func (c *VideoController) Get(ctx *gin.Context) {
 // @Tags Videos
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer"
+// @Security ApiKeyAuth
 // @Param video body model.AddVideo true "Add video"
 // @Success 200 {object} model.Video
 // @Failure 400 {object} httputil.HTTPError
@@ -139,7 +139,7 @@ func (c *VideoController) Add(ctx *gin.Context) {
 // @Tags Videos
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer"
+// @Security ApiKeyAuth
 // @Param id path int true "Video ID"
 // @Param video body model.UpdateVideo true "Update video"
 // @Success 200 {object} model.Video
@@ -178,7 +178,7 @@ func (c *VideoController) Update(ctx *gin.Context) {
 // @Tags Videos
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer"
+// @Security ApiKeyAuth
 // @Param id path int true "Video ID"
 // @Success 200 {object} httputil.HTTPMessageResponse
 // @Failure 400 {object} httputil.HTTPError

@@ -24,7 +24,7 @@ func NewMediaController(service *service.MediaService) *MediaController {
 // @Tags Media
 // @Accept mpfd
 // @Produce json
-// @Param Authorization header string true "Bearer"
+// @Security ApiKeyAuth
 // @Param file formData file true "Video File"
 // @Param title formData string true "Video Title"
 // @Success 200 {object} model.Video

@@ -54,7 +54,7 @@ func (c *ViewController) Total(ctx *gin.Context) {
 // @Tags Views
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer"
+// @Security ApiKeyAuth
 // @Param id path int true "Video ID"
 // @Success 200 {object} model.View
 // @Failure 400 {object} httputil.HTTPError
