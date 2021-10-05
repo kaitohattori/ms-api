@@ -27,7 +27,7 @@ func init() {
 		MediaWorkingRoot:             "assets/working",
 		VideoFileName:                "video.mp4",
 		ThumbnailFileName:            "thumbnail.jpg",
-		VideoProcessorScriptFilePath: "scripts/process_video.sh",
+		VideoProcessorScriptFilePath: "scripts/upload_video.sh",
 	}
 }
 
