@@ -118,7 +118,7 @@ func StartServer() {
 		)
 		media.Use(
 			timeout.Timeout(
-				timeout.WithTimeout(config.Config.APIMediaTimeout),
+				timeout.WithTimeout(config.Config.MediaAPITimeout),
 				timeout.WithErrorHttpCode(http.StatusRequestTimeout),
 				timeout.WithCallBack(func(r *http.Request) {
 					fmt.Println("Request Timeout : ", r.URL.String())
