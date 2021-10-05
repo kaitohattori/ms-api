@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"ms-api/app/httputil"
 	"ms-api/app/model"
 	"ms-api/app/service"
 	"ms-api/app/util"
@@ -30,9 +29,9 @@ func NewVideoController(service *service.VideoService) *VideoController {
 // @Param limit query int false "limit"
 // @Param sortType query string true "sort type [popular, recommended]"
 // @Success 200 {array} model.Video
-// @Failure 400 {object} httputil.HTTPError
-// @Failure 404 {object} httputil.HTTPError
-// @Failure 500 {object} httputil.HTTPError
+// @Failure 400 {object} util.HTTPError
+// @Failure 404 {object} util.HTTPError
+// @Failure 500 {object} util.HTTPError
 // @Router /videos [get]
 func (c *VideoController) Find(ctx *gin.Context) {
 	sortTypeStr := ctx.Query("sortType")
@@ -43,7 +42,7 @@ func (c *VideoController) Find(ctx *gin.Context) {
 	if limitStr != "" {
 		value, err := strconv.Atoi(limitStr)
 		if err != nil {
-			httputil.NewError(ctx, http.StatusBadRequest, err)
+			util.NewError(ctx, http.StatusBadRequest, err)
 			return
 		} else {
 			limit = &value
@@ -53,13 +52,13 @@ func (c *VideoController) Find(ctx *gin.Context) {
 	sortType := model.VideoSortType(sortTypeStr)
 	if err := sortType.Valid(); err != nil {
 		fmt.Println(err)
-		httputil.NewError(ctx, http.StatusBadRequest, err)
+		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	filter := model.NewVideoFilter(sortType, limit, &userId)
 	videos, err := c.service.Find(ctx, filter)
 	if err != nil {
-		httputil.NewError(ctx, http.StatusNotFound, err)
+		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, videos)
@@ -82,20 +81,20 @@ func (c *VideoController) Find(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Video ID"
 // @Success 200 {object} model.Video
-// @Failure 400 {object} httputil.HTTPError
-// @Failure 404 {object} httputil.HTTPError
-// @Failure 500 {object} httputil.HTTPError
+// @Failure 400 {object} util.HTTPError
+// @Failure 404 {object} util.HTTPError
+// @Failure 500 {object} util.HTTPError
 // @Router /videos/{id} [get]
 func (c *VideoController) Get(ctx *gin.Context) {
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
-		httputil.NewError(ctx, http.StatusBadRequest, err)
+		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	video, err := c.service.Get(ctx, videoId)
 	if err != nil {
-		httputil.NewError(ctx, http.StatusNotFound, err)
+		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, video)
@@ -110,24 +109,24 @@ func (c *VideoController) Get(ctx *gin.Context) {
 // @Security ApiKeyAuth
 // @Param video body model.AddVideo true "Add video"
 // @Success 200 {object} model.Video
-// @Failure 400 {object} httputil.HTTPError
-// @Failure 404 {object} httputil.HTTPError
-// @Failure 500 {object} httputil.HTTPError
+// @Failure 400 {object} util.HTTPError
+// @Failure 404 {object} util.HTTPError
+// @Failure 500 {object} util.HTTPError
 // @Router /videos [post]
 func (c *VideoController) Add(ctx *gin.Context) {
 	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
 	var addVideo model.AddVideo
 	if err := ctx.ShouldBindJSON(&addVideo); err != nil {
-		httputil.NewError(ctx, http.StatusBadRequest, err)
+		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	if err := addVideo.Valid(); err != nil {
-		httputil.NewError(ctx, http.StatusBadRequest, err)
+		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	video, err := c.service.Add(ctx, userId, &addVideo)
 	if err != nil {
-		httputil.NewError(ctx, http.StatusNotFound, err)
+		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, video)
@@ -143,30 +142,30 @@ func (c *VideoController) Add(ctx *gin.Context) {
 // @Param id path int true "Video ID"
 // @Param video body model.UpdateVideo true "Update video"
 // @Success 200 {object} model.Video
-// @Failure 400 {object} httputil.HTTPError
-// @Failure 404 {object} httputil.HTTPError
-// @Failure 500 {object} httputil.HTTPError
+// @Failure 400 {object} util.HTTPError
+// @Failure 404 {object} util.HTTPError
+// @Failure 500 {object} util.HTTPError
 // @Router /videos/{id} [post]
 func (c *VideoController) Update(ctx *gin.Context) {
 	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
-		httputil.NewError(ctx, http.StatusBadRequest, err)
+		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	var updateVideo model.UpdateVideo
 	if err := ctx.ShouldBindJSON(&updateVideo); err != nil {
-		httputil.NewError(ctx, http.StatusBadRequest, err)
+		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	if err := updateVideo.Valid(); err != nil {
-		httputil.NewError(ctx, http.StatusBadRequest, err)
+		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	video, err := c.service.Update(ctx, userId, videoId, &updateVideo)
 	if err != nil {
-		httputil.NewError(ctx, http.StatusNotFound, err)
+		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, video)
@@ -180,24 +179,24 @@ func (c *VideoController) Update(ctx *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Video ID"
-// @Success 200 {object} httputil.HTTPMessageResponse
-// @Failure 400 {object} httputil.HTTPError
-// @Failure 404 {object} httputil.HTTPError
-// @Failure 500 {object} httputil.HTTPError
+// @Success 200 {object} util.HTTPMessageResponse
+// @Failure 400 {object} util.HTTPError
+// @Failure 404 {object} util.HTTPError
+// @Failure 500 {object} util.HTTPError
 // @Router /videos/{id} [delete]
 func (c *VideoController) Delete(ctx *gin.Context) {
 	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
-		httputil.NewError(ctx, http.StatusBadRequest, err)
+		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	if err = c.service.Remove(ctx, userId, videoId); err != nil {
-		httputil.NewError(ctx, http.StatusNotFound, err)
+		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	resp := httputil.HTTPMessageResponse{
+	resp := util.HTTPMessageResponse{
 		Message: "success",
 	}
 	ctx.JSON(http.StatusOK, resp)
