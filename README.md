@@ -1,5 +1,12 @@
 # MS-API
 
+## 準備
+
+```
+# GO111MODULEをオンにする
+$ export GO111MODULE=on
+```
+
 ## 動作
 
 ```
