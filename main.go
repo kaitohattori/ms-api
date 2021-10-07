@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"ms-api/app/controller"
-	"ms-api/app/repository"
-	"ms-api/app/service"
 	"ms-api/app/util"
 	"ms-api/config"
 	_ "ms-api/docs"
@@ -51,15 +49,8 @@ func StartServer() {
 	r.Use(authUtil.CorsMiddleware())
 
 	videoController := controller.NewVideoController()
-
-	analysisRepository := repository.NewAnalysisRepository()
-	analysisService := service.NewAnalysisService(analysisRepository)
-	analysisController := controller.NewAnalysisController(analysisService)
-
-	rateRepository := repository.NewRateRepository()
-	rateService := service.NewRateService(rateRepository)
-	rateController := controller.NewRateController(rateService)
-
+	analysisController := controller.NewAnalysisController()
+	rateController := controller.NewRateController()
 	thumbnailController := controller.NewThumbnailController()
 
 	v1 := r.Group("/api/v1")

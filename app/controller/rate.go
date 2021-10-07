@@ -1,20 +1,20 @@
 package controller
 
 import (
-	"ms-api/app/service"
+	"ms-api/app/model"
 	"ms-api/app/util"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type RateController struct {
-	service *service.RateService
 }
 
-func NewRateController(service *service.RateService) *RateController {
-	return &RateController{service: service}
+func NewRateController() *RateController {
+	return &RateController{}
 }
 
 // RateController Get docs
@@ -38,7 +38,7 @@ func (c *RateController) Get(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	rate, err := c.service.Get(ctx, videoId, userId)
+	rate, err := model.Rate.FindOne(model.Rate{}, ctx, videoId, userId)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
@@ -74,12 +74,19 @@ func (c *RateController) Update(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	rate, err := c.service.Update(ctx, userId, videoId, float32(value))
+	now := time.Now()
+	rate := &model.Rate{
+		UserId:    userId,
+		VideoId:   videoId,
+		Value:     float32(value),
+		UpdatedAt: &now,
+	}
+	newRate, err := rate.Update(ctx)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, rate)
+	ctx.JSON(http.StatusOK, newRate)
 }
 
 // RateController Average docs
@@ -101,7 +108,7 @@ func (c *RateController) Average(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	value, err := c.service.Average(ctx, videoId)
+	value, err := model.Rate.Average(model.Rate{}, ctx, videoId)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return

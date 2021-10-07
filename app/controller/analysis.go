@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"ms-api/app/service"
+	"ms-api/app/model"
 	"ms-api/app/util"
 	"net/http"
 	"strconv"
@@ -10,11 +10,10 @@ import (
 )
 
 type AnalysisController struct {
-	service *service.AnalysisService
 }
 
-func NewAnalysisController(service *service.AnalysisService) *AnalysisController {
-	return &AnalysisController{service: service}
+func NewAnalysisController() *AnalysisController {
+	return &AnalysisController{}
 }
 
 // AnalysisController Total docs
@@ -36,7 +35,7 @@ func (c *AnalysisController) Total(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	total, err := c.service.Total(ctx, videoId)
+	total, err := model.Analysis.Count(model.Analysis{}, ctx, videoId)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
@@ -68,8 +67,11 @@ func (c *AnalysisController) Add(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	analysis, err := c.service.Add(ctx, userId, videoId)
-	if err != nil {
+	analysis := &model.Analysis{
+		VideoId: videoId,
+		UserId:  userId,
+	}
+	if err := analysis.Insert(ctx); err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
