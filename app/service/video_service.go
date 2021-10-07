@@ -18,7 +18,7 @@ func NewVideoService(repository *repository.VideoRepository) *VideoService {
 
 func (s VideoService) Find(ctx *gin.Context, filter model.VideoFilter) ([]model.Video, error) {
 	if filter.SortType == model.VideoSortTypePopular {
-		return s.repository.FindAllSortedByViewCount(ctx, filter)
+		return s.repository.FindAllSortedByAnalysisCount(ctx, filter)
 	} else if filter.SortType == model.VideoSortTypeRecommended {
 		return s.repository.FindAllRecommended(ctx, filter)
 	} else {

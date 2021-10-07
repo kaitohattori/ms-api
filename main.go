@@ -54,9 +54,9 @@ func StartServer() {
 	videoService := service.NewVideoService(videoRepository)
 	videoController := controller.NewVideoController(videoService)
 
-	viewRepository := repository.NewViewRepository()
-	viewService := service.NewViewService(viewRepository)
-	AnalysisController := controller.NewAnalysisController(viewService)
+	analysisRepository := repository.NewAnalysisRepository()
+	analysisService := service.NewAnalysisService(analysisRepository)
+	analysisController := controller.NewAnalysisController(analysisService)
 
 	rateRepository := repository.NewRateRepository()
 	rateService := service.NewRateService(rateRepository)
@@ -76,10 +76,10 @@ func StartServer() {
 			videos.POST(":id", authUtil.CheckJWT(), videoController.Update)
 			videos.DELETE(":id", authUtil.CheckJWT(), videoController.Delete)
 		}
-		views := v1.Group("/videos")
+		analysis := v1.Group("/videos")
 		{
-			views.GET(":id/view/total", AnalysisController.Total)
-			views.POST(":id/view", authUtil.CheckJWT(), AnalysisController.Add)
+			analysis.GET(":id/analysis/total", analysisController.Total)
+			analysis.POST(":id/analysis", authUtil.CheckJWT(), analysisController.Add)
 		}
 		rates := v1.Group("/videos")
 		{
@@ -100,7 +100,7 @@ func StartServer() {
 					fmt.Println("Request Timeout : ", r.URL.String())
 				})),
 		)
-		views.Use(
+		analysis.Use(
 			timeout.Timeout(
 				timeout.WithTimeout(config.Config.APITimeout),
 				timeout.WithErrorHttpCode(http.StatusRequestTimeout),

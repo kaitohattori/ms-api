@@ -10,17 +10,17 @@ import (
 )
 
 type AnalysisController struct {
-	service *service.ViewService
+	service *service.AnalysisService
 }
 
-func NewAnalysisController(service *service.ViewService) *AnalysisController {
+func NewAnalysisController(service *service.AnalysisService) *AnalysisController {
 	return &AnalysisController{service: service}
 }
 
 // AnalysisController Total docs
-// @Summary Total View
-// @Description total View
-// @Tags Views
+// @Summary Total Analysis
+// @Description total Analysis
+// @Tags Analysis
 // @Accept json
 // @Produce json
 // @Param id path int true "Video ID"
@@ -28,7 +28,7 @@ func NewAnalysisController(service *service.ViewService) *AnalysisController {
 // @Failure 400 {object} util.HTTPError
 // @Failure 404 {object} util.HTTPError
 // @Failure 500 {object} util.HTTPError
-// @Router /videos/{id}/view/total [get]
+// @Router /videos/{id}/analysis/total [get]
 func (c *AnalysisController) Total(ctx *gin.Context) {
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
@@ -48,18 +48,18 @@ func (c *AnalysisController) Total(ctx *gin.Context) {
 }
 
 // AnalysisController Add docs
-// @Summary Add a View
-// @Description add View
-// @Tags Views
+// @Summary Add a Analysis
+// @Description add Analysis
+// @Tags Analysis
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Video ID"
-// @Success 200 {object} model.View
+// @Success 200 {object} model.Analysis
 // @Failure 400 {object} util.HTTPError
 // @Failure 404 {object} util.HTTPError
 // @Failure 500 {object} util.HTTPError
-// @Router /videos/{id}/view [post]
+// @Router /videos/{id}/analysis [post]
 func (c *AnalysisController) Add(ctx *gin.Context) {
 	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
 	videoIdStr := ctx.Param("id")
@@ -68,10 +68,10 @@ func (c *AnalysisController) Add(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	view, err := c.service.Add(ctx, userId, videoId)
+	analysis, err := c.service.Add(ctx, userId, videoId)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, view)
+	ctx.JSON(http.StatusOK, analysis)
 }
