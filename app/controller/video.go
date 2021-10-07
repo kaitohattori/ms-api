@@ -3,20 +3,19 @@ package controller
 import (
 	"fmt"
 	"ms-api/app/model"
-	"ms-api/app/service"
 	"ms-api/app/util"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type VideoController struct {
-	service *service.VideoService
 }
 
-func NewVideoController(service *service.VideoService) *VideoController {
-	return &VideoController{service: service}
+func NewVideoController() *VideoController {
+	return &VideoController{}
 }
 
 // VideoController Find docs
@@ -56,7 +55,7 @@ func (c *VideoController) Find(ctx *gin.Context) {
 		return
 	}
 	filter := model.NewVideoFilter(sortType, limit, &userId)
-	videos, err := c.service.Find(ctx, filter)
+	videos, err := model.VideoFind(ctx, filter)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
@@ -92,7 +91,7 @@ func (c *VideoController) Get(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	video, err := c.service.Get(ctx, videoId)
+	video, err := model.Video.FindOne(model.Video{}, ctx, videoId)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
@@ -107,7 +106,7 @@ func (c *VideoController) Get(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param video body model.AddVideo true "Add video"
+// @Param title formData string true "Video Title"
 // @Success 200 {object} model.Video
 // @Failure 400 {object} util.HTTPError
 // @Failure 404 {object} util.HTTPError
@@ -115,21 +114,18 @@ func (c *VideoController) Get(ctx *gin.Context) {
 // @Router /videos [post]
 func (c *VideoController) Add(ctx *gin.Context) {
 	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
-	var addVideo model.AddVideo
-	if err := ctx.ShouldBindJSON(&addVideo); err != nil {
-		util.NewError(ctx, http.StatusBadRequest, err)
-		return
+	title := ctx.PostForm("title")
+	v := &model.Video{
+		Title:     title,
+		UserId:    userId,
+		UpdatedAt: time.Now(),
+		CreatedAt: time.Now(),
 	}
-	if err := addVideo.Valid(); err != nil {
-		util.NewError(ctx, http.StatusBadRequest, err)
-		return
-	}
-	video, err := c.service.Add(ctx, userId, &addVideo)
-	if err != nil {
+	if err := v.Insert(ctx); err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, video)
+	ctx.JSON(http.StatusOK, v)
 }
 
 // VideoController Update docs
@@ -140,7 +136,7 @@ func (c *VideoController) Add(ctx *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Video ID"
-// @Param video body model.UpdateVideo true "Update video"
+// @Param title formData string true "Video Title"
 // @Success 200 {object} model.Video
 // @Failure 400 {object} util.HTTPError
 // @Failure 404 {object} util.HTTPError
@@ -154,21 +150,18 @@ func (c *VideoController) Update(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	var updateVideo model.UpdateVideo
-	if err := ctx.ShouldBindJSON(&updateVideo); err != nil {
-		util.NewError(ctx, http.StatusBadRequest, err)
-		return
+	title := ctx.PostForm("title")
+	v := &model.Video{
+		Id:        videoId,
+		Title:     title,
+		UserId:    userId,
+		UpdatedAt: time.Now(),
 	}
-	if err := updateVideo.Valid(); err != nil {
-		util.NewError(ctx, http.StatusBadRequest, err)
-		return
-	}
-	video, err := c.service.Update(ctx, userId, videoId, &updateVideo)
-	if err != nil {
+	if err := v.Update(ctx); err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, video)
+	ctx.JSON(http.StatusOK, v)
 }
 
 // VideoController Delete docs
@@ -185,14 +178,18 @@ func (c *VideoController) Update(ctx *gin.Context) {
 // @Failure 500 {object} util.HTTPError
 // @Router /videos/{id} [delete]
 func (c *VideoController) Delete(ctx *gin.Context) {
-	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	if err = c.service.Remove(ctx, userId, videoId); err != nil {
+	video, err := model.Video.FindOne(model.Video{}, ctx, videoId)
+	if err != nil {
+		util.NewError(ctx, http.StatusBadRequest, err)
+		return
+	}
+	if err := video.Delete(ctx); err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
@@ -200,4 +197,34 @@ func (c *VideoController) Delete(ctx *gin.Context) {
 		Message: "success",
 	}
 	ctx.JSON(http.StatusOK, resp)
+}
+
+// VideoController Upload docs
+// @Summary Upload video
+// @Description upload video
+// @Tags Videos
+// @Accept mpfd
+// @Produce json
+// @Security ApiKeyAuth
+// @Param file formData file true "Video File"
+// @Param title formData string true "Video Title"
+// @Success 200 {object} model.Video
+// @Failure 400 {object} util.HTTPError
+// @Failure 404 {object} util.HTTPError
+// @Failure 500 {object} util.HTTPError
+// @Router /videos/upload [post]
+func (c *VideoController) Upload(ctx *gin.Context) {
+	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
+	file, header, err := ctx.Request.FormFile("file")
+	if err != nil {
+		util.NewError(ctx, http.StatusBadRequest, err)
+		return
+	}
+	title := ctx.PostForm("title")
+	video, err := model.Video.Upload(model.Video{}, ctx, userId, title, file, *header)
+	if err != nil {
+		util.NewError(ctx, http.StatusNotFound, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, video)
 }

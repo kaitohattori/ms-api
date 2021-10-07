@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"mime/multipart"
+	"ms-api/app/util"
 	"ms-api/config"
 	"net/http"
 	"time"
@@ -17,6 +19,16 @@ type Video struct {
 	Title     string    `json:"title,omitempty"`
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
+}
+
+func VideoFind(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
+	if filter.SortType == VideoSortTypePopular {
+		return Video.FindAllSortedByAnalysisCount(Video{}, ctx, filter)
+	} else if filter.SortType == VideoSortTypeRecommended {
+		return Video.FindAllRecommended(Video{}, ctx, filter)
+	} else {
+		return nil, ErrRecordNotFound
+	}
 }
 
 func (Video) FindAllSortedByAnalysisCount(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
@@ -130,48 +142,57 @@ func (v *Video) Delete(ctx *gin.Context) error {
 	}
 }
 
-type AddVideo struct {
-	Title string `json:"title" example:"video title"`
-}
+func (Video) Upload(ctx *gin.Context, userId string, title string, file multipart.File, fileHeader multipart.FileHeader) (*Video, error) {
+	ctxDB := DbConnection.WithContext(ctx.Request.Context())
+	tx := ctxDB.Begin()
 
-func (v AddVideo) Valid() error {
-	switch {
-	case len(v.Title) == 0:
-		return ErrNameInvalid
+	video := Video{
+		Title:     title,
+		UserId:    userId,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	if err := tx.Create(&video).Error; err != nil {
+		// Rollback
+		tx.Rollback()
+		return nil, err
+	}
+
+	// Make working directory
+	dirPath, err := util.MediaUtil.MakeWorkingDirectory(video.Id)
+	if err != nil {
+		// Rollback
+		tx.Rollback()
+		// Delete working directory
+		util.MediaUtil.DeleteWorkingDirectory(*dirPath)
+		return nil, err
+	}
+	// Save video
+	videoFilePath, err := util.MediaUtil.SaveVideo(file, fileHeader, *dirPath)
+	if err != nil {
+		// Rollback
+		tx.Rollback()
+		// Delete working directory
+		util.MediaUtil.DeleteWorkingDirectory(*dirPath)
+		return nil, err
+	}
+	// Process video
+	if err := util.MediaUtil.ProcessVideo(ctx, video.Id, *videoFilePath); err != nil {
+		// Rollback
+		tx.Rollback()
+		// Delete working directory
+		util.MediaUtil.DeleteWorkingDirectory(*dirPath)
+		return nil, err
+	}
+	// Delete working directory
+	util.MediaUtil.DeleteWorkingDirectory(*dirPath)
+
+	select {
+	case <-ctx.Done():
+		tx.Rollback()
+		return nil, ctx.Err()
 	default:
-		return nil
+		tx.Commit()
+		return &video, nil
 	}
-}
-
-func (v AddVideo) SetParamsTo(video *Video) error {
-	if err := v.Valid(); err != nil {
-		return err
-	}
-	if v.Title != "" {
-		video.Title = v.Title
-	}
-	return nil
-}
-
-type UpdateVideo struct {
-	Title string `json:"title" example:"video title"`
-}
-
-func (v UpdateVideo) Valid() error {
-	switch {
-	case len(v.Title) == 0:
-		return ErrNameInvalid
-	default:
-		return nil
-	}
-}
-
-func (v UpdateVideo) SetParamsTo(video *Video) error {
-	if err := v.Valid(); err != nil {
-		return err
-	}
-	if v.Title != "" {
-		video.Title = v.Title
-	}
-	return nil
 }

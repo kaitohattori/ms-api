@@ -50,9 +50,7 @@ func StartServer() {
 	)
 	r.Use(authUtil.CorsMiddleware())
 
-	videoRepository := repository.NewVideoRepository()
-	videoService := service.NewVideoService(videoRepository)
-	videoController := controller.NewVideoController(videoService)
+	videoController := controller.NewVideoController()
 
 	analysisRepository := repository.NewAnalysisRepository()
 	analysisService := service.NewAnalysisService(analysisRepository)
@@ -62,9 +60,7 @@ func StartServer() {
 	rateService := service.NewRateService(rateRepository)
 	rateController := controller.NewRateController(rateService)
 
-	mediaRepository := repository.NewMediaRepository()
-	mediaService := service.NewMediaService(mediaRepository)
-	ThumbnailController := controller.NewThumbnailController(mediaService)
+	thumbnailController := controller.NewThumbnailController()
 
 	v1 := r.Group("/api/v1")
 	{
@@ -75,6 +71,10 @@ func StartServer() {
 			videos.POST("", authUtil.CheckJWT(), videoController.Add)
 			videos.POST(":id", authUtil.CheckJWT(), videoController.Update)
 			videos.DELETE(":id", authUtil.CheckJWT(), videoController.Delete)
+		}
+		video_upload := v1.Group("/videos")
+		{
+			video_upload.POST("upload", authUtil.CheckJWT(), videoController.Upload)
 		}
 		analysis := v1.Group("/videos")
 		{
@@ -87,14 +87,21 @@ func StartServer() {
 			rates.GET(":id/rate/average", rateController.Average)
 			rates.POST(":id/rate", authUtil.CheckJWT(), rateController.Update)
 		}
-		media := v1.Group("/videos")
+		thumbnail := v1.Group("/videos")
 		{
-			media.GET(":id/thumbnail", ThumbnailController.GetThumbnailImage)
-			media.POST("upload", authUtil.CheckJWT(), ThumbnailController.Upload)
+			thumbnail.GET(":id/thumbnail", thumbnailController.GetThumbnailImage)
 		}
 		videos.Use(
 			timeout.Timeout(
 				timeout.WithTimeout(config.Config.APITimeout),
+				timeout.WithErrorHttpCode(http.StatusRequestTimeout),
+				timeout.WithCallBack(func(r *http.Request) {
+					fmt.Println("Request Timeout : ", r.URL.String())
+				})),
+		)
+		video_upload.Use(
+			timeout.Timeout(
+				timeout.WithTimeout(config.Config.FileUploadAPITimeout),
 				timeout.WithErrorHttpCode(http.StatusRequestTimeout),
 				timeout.WithCallBack(func(r *http.Request) {
 					fmt.Println("Request Timeout : ", r.URL.String())
@@ -116,9 +123,9 @@ func StartServer() {
 					fmt.Println("Request Timeout : ", r.URL.String())
 				})),
 		)
-		media.Use(
+		thumbnail.Use(
 			timeout.Timeout(
-				timeout.WithTimeout(config.Config.MediaAPITimeout),
+				timeout.WithTimeout(config.Config.APITimeout),
 				timeout.WithErrorHttpCode(http.StatusRequestTimeout),
 				timeout.WithCallBack(func(r *http.Request) {
 					fmt.Println("Request Timeout : ", r.URL.String())
