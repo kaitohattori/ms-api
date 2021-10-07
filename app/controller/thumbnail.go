@@ -9,15 +9,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type MediaController struct {
+type ThumbnailController struct {
 	service *service.MediaService
 }
 
-func NewMediaController(service *service.MediaService) *MediaController {
-	return &MediaController{service: service}
+func NewThumbnailController(service *service.MediaService) *ThumbnailController {
+	return &ThumbnailController{service: service}
 }
 
-// MediaController Upload docs
+// ThumbnailController Upload docs
 // @Summary Upload media
 // @Description upload media
 // @Tags Media
@@ -31,7 +31,7 @@ func NewMediaController(service *service.MediaService) *MediaController {
 // @Failure 404 {object} util.HTTPError
 // @Failure 500 {object} util.HTTPError
 // @Router /videos/upload [post]
-func (c *MediaController) Upload(ctx *gin.Context) {
+func (c *ThumbnailController) Upload(ctx *gin.Context) {
 	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
 	file, header, err := ctx.Request.FormFile("file")
 	if err != nil {
@@ -59,7 +59,7 @@ func (c *MediaController) Upload(ctx *gin.Context) {
 // @Failure 404 {object} util.HTTPError
 // @Failure 500 {object} util.HTTPError
 // @Router /videos/{id}/thumbnail [get]
-func (c *MediaController) GetThumbnailImage(ctx *gin.Context) {
+func (c *ThumbnailController) GetThumbnailImage(ctx *gin.Context) {
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
