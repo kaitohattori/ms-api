@@ -11,6 +11,8 @@ COPY . .
 # COPY go.sum ./
 # COPY main.go ./
 
+RUN apk add --no-cache ffmpeg
+
 ENV GO111MODULE=on
 
 RUN go mod download
