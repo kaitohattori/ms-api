@@ -166,33 +166,33 @@ func VideoUpload(ctx *gin.Context, userId string, title string, file multipart.F
 	}
 
 	// Make working directory
-	dirPath, err := util.MediaUtil.MakeWorkingDirectory(video.Id)
+	dirPath, err := util.FileUtil.MakeWorkingDirectory(video.Id)
 	if err != nil {
 		// Rollback
 		tx.Rollback()
 		// Delete working directory
-		util.MediaUtil.DeleteWorkingDirectory(*dirPath)
+		util.FileUtil.DeleteWorkingDirectory(*dirPath)
 		return nil, err
 	}
 	// Save video
-	videoFilePath, err := util.MediaUtil.SaveVideo(file, fileHeader, *dirPath)
+	videoFilePath, err := util.FileUtil.SaveVideo(file, fileHeader, *dirPath)
 	if err != nil {
 		// Rollback
 		tx.Rollback()
 		// Delete working directory
-		util.MediaUtil.DeleteWorkingDirectory(*dirPath)
+		util.FileUtil.DeleteWorkingDirectory(*dirPath)
 		return nil, err
 	}
 	// Process video
-	if err := util.MediaUtil.ProcessVideo(ctx, video.Id, *videoFilePath); err != nil {
+	if err := util.FileUtil.ProcessVideo(ctx, video.Id, *videoFilePath); err != nil {
 		// Rollback
 		tx.Rollback()
 		// Delete working directory
-		util.MediaUtil.DeleteWorkingDirectory(*dirPath)
+		util.FileUtil.DeleteWorkingDirectory(*dirPath)
 		return nil, err
 	}
 	// Delete working directory
-	util.MediaUtil.DeleteWorkingDirectory(*dirPath)
+	util.FileUtil.DeleteWorkingDirectory(*dirPath)
 
 	select {
 	case <-ctx.Done():
