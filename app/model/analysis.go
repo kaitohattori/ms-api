@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type View struct {
+type Analysis struct {
 	Id        int       `json:"id" gorm:"primaryKey"`
 	UserId    string    `json:"userId,omitempty"`
 	VideoId   int       `json:"videoId,omitempty"`
@@ -14,10 +14,10 @@ type View struct {
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }
 
-func (View) Count(ctx *gin.Context, videoId int) (*int, error) {
+func AnalysisCount(ctx *gin.Context, videoId int) (*int, error) {
 	var count int64
 	ctxDB := DbConnection.WithContext(ctx.Request.Context())
-	if err := ctxDB.Model(&View{}).Where("video_id = ?", videoId).Count(&count).Error; err != nil {
+	if err := ctxDB.Model(&Analysis{}).Where("video_id = ?", videoId).Count(&count).Error; err != nil {
 		return nil, err
 	}
 	int_count := int(count)
@@ -30,16 +30,20 @@ func (View) Count(ctx *gin.Context, videoId int) (*int, error) {
 	}
 }
 
-func (v *View) Insert(ctx *gin.Context) error {
+func AnalysisInsert(ctx *gin.Context, userId string, videoId int) (*Analysis, error) {
+	analysis := &Analysis{
+		VideoId: videoId,
+		UserId:  userId,
+	}
 	ctxDB := DbConnection.WithContext(ctx.Request.Context())
-	if err := ctxDB.Create(&v).Error; err != nil {
-		return err
+	if err := ctxDB.Create(analysis).Error; err != nil {
+		return nil, err
 	}
 
 	select {
 	case <-ctx.Done():
-		return ctx.Err()
+		return nil, ctx.Err()
 	default:
-		return nil
+		return analysis, nil
 	}
 }

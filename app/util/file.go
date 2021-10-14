@@ -11,9 +11,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var MediaUtil MediaUtilFuncs
+var FileUtil FileUtilFuncs
 
-type MediaUtilFuncs struct {
+type FileUtilFuncs struct {
 	MediaRoot                    string
 	MediaWorkingRoot             string
 	VideoFileName                string
@@ -22,7 +22,7 @@ type MediaUtilFuncs struct {
 }
 
 func init() {
-	MediaUtil = MediaUtilFuncs{
+	FileUtil = FileUtilFuncs{
 		MediaRoot:                    "assets/media",
 		MediaWorkingRoot:             "assets/working",
 		VideoFileName:                "video.mp4",
@@ -31,7 +31,7 @@ func init() {
 	}
 }
 
-func (u MediaUtilFuncs) MakeWorkingDirectory(videoId int) (*string, error) {
+func (u FileUtilFuncs) MakeWorkingDirectory(videoId int) (*string, error) {
 	path := fmt.Sprintf("%s/%d", u.MediaWorkingRoot, videoId)
 	if err := os.MkdirAll(path, 0777); err != nil {
 		return nil, err
@@ -39,11 +39,11 @@ func (u MediaUtilFuncs) MakeWorkingDirectory(videoId int) (*string, error) {
 	return &path, nil
 }
 
-func (u MediaUtilFuncs) DeleteWorkingDirectory(dirPath string) error {
+func (u FileUtilFuncs) DeleteWorkingDirectory(dirPath string) error {
 	return os.RemoveAll(dirPath)
 }
 
-func (u MediaUtilFuncs) SaveVideo(file multipart.File, header multipart.FileHeader, toDirPath string) (*string, error) {
+func (u FileUtilFuncs) SaveVideo(file multipart.File, header multipart.FileHeader, toDirPath string) (*string, error) {
 	videoFilePath := fmt.Sprintf("%s/%s", toDirPath, u.VideoFileName)
 	newFile, err := os.Create(videoFilePath)
 	if err != nil {
@@ -60,7 +60,7 @@ func (u MediaUtilFuncs) SaveVideo(file multipart.File, header multipart.FileHead
 	return &absVideoFilePath, nil
 }
 
-func (u MediaUtilFuncs) ProcessVideo(ctx *gin.Context, videoId int, srcFilePath string) error {
+func (u FileUtilFuncs) ProcessVideo(ctx *gin.Context, videoId int, srcFilePath string) error {
 	dstDirPath, _ := filepath.Abs(fmt.Sprintf("%s/%d", u.MediaRoot, videoId))
 	cmd := exec.CommandContext(ctx, "/bin/sh", u.VideoProcessorScriptFilePath, srcFilePath, dstDirPath, "1920x1080")
 	fmt.Println(cmd)
@@ -71,7 +71,7 @@ func (u MediaUtilFuncs) ProcessVideo(ctx *gin.Context, videoId int, srcFilePath 
 	return nil
 }
 
-func (u MediaUtilFuncs) ThumbnailFilePath(videoId int) string {
+func (u FileUtilFuncs) ThumbnailFilePath(videoId int) string {
 	basePath := fmt.Sprintf("%s/%d", u.MediaRoot, videoId)
 	return fmt.Sprintf("%s/thumbnail/%s", basePath, u.ThumbnailFileName)
 }

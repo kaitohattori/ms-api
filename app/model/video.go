@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"mime/multipart"
+	"ms-api/app/util"
 	"ms-api/config"
 	"net/http"
 	"time"
@@ -19,19 +21,29 @@ type Video struct {
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }
 
-func (Video) FindAllSortedByViewCount(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
+func VideoFind(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
+	if filter.SortType == VideoSortTypePopular {
+		return VideoFindAllSortedByAnalysisCount(ctx, filter)
+	} else if filter.SortType == VideoSortTypeRecommended {
+		return VideoFindAllRecommended(ctx, filter)
+	} else {
+		return nil, util.ErrRecordNotFound
+	}
+}
+
+func VideoFindAllSortedByAnalysisCount(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
 	videos := []Video{}
 	ctxDB := DbConnection.WithContext(ctx)
-	// subQuery := ctxDB.Select("video_id", "count(id) as view_count").Table("views").Group("video_id")
-	// subQuery := fmt.Sprintf("select video_id, count(id) as view_count from views group by video_id")
-	// subQuery := "select video_id, count(id) as view_count from views group by video_id"
+	// subQuery := ctxDB.Select("video_id", "count(id) as analysis_count").Table("analyses").Group("video_id")
+	// subQuery := fmt.Sprintf("select video_id, count(id) as analysis_count from analyses group by video_id")
+	// subQuery := "select video_id, count(id) as analysis_count from analyses group by video_id"
 	// query := ctxDB.Model(&Video{}).Joins("left join (?) as v on videos.id = v.video_id", subQuery)
 	// TODO: もうちょっとかっこよく書きたい
-	query := ctxDB.Model(&Video{}).Joins("left join (select video_id, count(id) as view_count from views group by video_id) as v on videos.id = v.video_id")
+	query := ctxDB.Model(&Video{}).Joins("left join (select video_id, count(id) as analysis_count from analyses group by video_id) as v on videos.id = v.video_id")
 	if filter.UserId != nil && *filter.UserId != "" {
 		query.Where("user_id = ?", filter.UserId)
 	}
-	query.Order("COALESCE(view_count, 0) desc")
+	query.Order("COALESCE(analysis_count, 0) desc")
 	if filter.Limit != nil && *filter.Limit != 0 {
 		query.Limit(*filter.Limit)
 	}
@@ -47,7 +59,7 @@ func (Video) FindAllSortedByViewCount(ctx *gin.Context, filter VideoFilter) ([]V
 	}
 }
 
-func (Video) FindAllRecommended(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
+func VideoFindAllRecommended(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
 	videos := []Video{}
 	url := fmt.Sprintf("%s/videos/recommended?userId=%s&limit=%d", config.Config.RecommendationAPIURL(), *filter.UserId, *filter.Limit)
 	req, err := http.NewRequest("GET", url, nil)
@@ -73,7 +85,7 @@ func (Video) FindAllRecommended(ctx *gin.Context, filter VideoFilter) ([]Video, 
 	}
 }
 
-func (Video) FindOne(ctx *gin.Context, videoId int) (*Video, error) {
+func VideoFindOne(ctx *gin.Context, videoId int) (*Video, error) {
 	video := Video{}
 	ctxDB := DbConnection.WithContext(ctx.Request.Context())
 	if err := ctxDB.First(&video, videoId).Error; err != nil {
@@ -88,17 +100,24 @@ func (Video) FindOne(ctx *gin.Context, videoId int) (*Video, error) {
 	}
 }
 
-func (v *Video) Insert(ctx *gin.Context) error {
+func VideoInsert(ctx *gin.Context, userId string, title string) (*Video, error) {
+	v := &Video{
+		Title:     title,
+		UserId:    userId,
+		UpdatedAt: time.Now(),
+		CreatedAt: time.Now(),
+	}
+
 	ctxDB := DbConnection.WithContext(ctx.Request.Context())
 	if err := ctxDB.Create(&v).Error; err != nil {
-		return err
+		return nil, err
 	}
 
 	select {
 	case <-ctx.Done():
-		return ctx.Err()
+		return nil, ctx.Err()
 	default:
-		return nil
+		return v, nil
 	}
 }
 
@@ -130,48 +149,83 @@ func (v *Video) Delete(ctx *gin.Context) error {
 	}
 }
 
-type AddVideo struct {
-	Title string `json:"title" example:"video title"`
-}
+func VideoUpload(ctx *gin.Context, userId string, title string, file multipart.File, fileHeader multipart.FileHeader) (*Video, error) {
+	ctxDB := DbConnection.WithContext(ctx.Request.Context())
+	tx := ctxDB.Begin()
 
-func (v AddVideo) Valid() error {
-	switch {
-	case len(v.Title) == 0:
-		return ErrNameInvalid
+	video := Video{
+		Title:     title,
+		UserId:    userId,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	if err := tx.Create(&video).Error; err != nil {
+		// Rollback
+		tx.Rollback()
+		return nil, err
+	}
+
+	// Make working directory
+	dirPath, err := util.FileUtil.MakeWorkingDirectory(video.Id)
+	if err != nil {
+		// Rollback
+		tx.Rollback()
+		// Delete working directory
+		util.FileUtil.DeleteWorkingDirectory(*dirPath)
+		return nil, err
+	}
+	// Save video
+	videoFilePath, err := util.FileUtil.SaveVideo(file, fileHeader, *dirPath)
+	if err != nil {
+		// Rollback
+		tx.Rollback()
+		// Delete working directory
+		util.FileUtil.DeleteWorkingDirectory(*dirPath)
+		return nil, err
+	}
+	// Process video
+	if err := util.FileUtil.ProcessVideo(ctx, video.Id, *videoFilePath); err != nil {
+		// Rollback
+		tx.Rollback()
+		// Delete working directory
+		util.FileUtil.DeleteWorkingDirectory(*dirPath)
+		return nil, err
+	}
+	// Delete working directory
+	util.FileUtil.DeleteWorkingDirectory(*dirPath)
+
+	select {
+	case <-ctx.Done():
+		tx.Rollback()
+		return nil, ctx.Err()
 	default:
+		tx.Commit()
+		return &video, nil
+	}
+}
+
+type VideoFilter struct {
+	SortType VideoSortType `json:"sortType,omitempty"`
+	Limit    *int          `json:"limit,omitempty"`
+	UserId   *string       `json:"userId,omitempty"`
+}
+
+func NewVideoFilter(sortType VideoSortType, limit *int, userId *string) VideoFilter {
+	return VideoFilter{SortType: sortType, Limit: limit, UserId: userId}
+}
+
+type VideoSortType string
+
+const (
+	VideoSortTypePopular     VideoSortType = "popular"
+	VideoSortTypeRecommended VideoSortType = "recommended"
+)
+
+func (v VideoSortType) Valid() error {
+	switch v {
+	case VideoSortTypePopular, VideoSortTypeRecommended:
 		return nil
-	}
-}
-
-func (v AddVideo) SetParamsTo(video *Video) error {
-	if err := v.Valid(); err != nil {
-		return err
-	}
-	if v.Title != "" {
-		video.Title = v.Title
-	}
-	return nil
-}
-
-type UpdateVideo struct {
-	Title string `json:"title" example:"video title"`
-}
-
-func (v UpdateVideo) Valid() error {
-	switch {
-	case len(v.Title) == 0:
-		return ErrNameInvalid
 	default:
-		return nil
+		return fmt.Errorf("failed: %w get %s", util.ErrInvalidType, v)
 	}
-}
-
-func (v UpdateVideo) SetParamsTo(video *Video) error {
-	if err := v.Valid(); err != nil {
-		return err
-	}
-	if v.Title != "" {
-		video.Title = v.Title
-	}
-	return nil
 }

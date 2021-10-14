@@ -2,7 +2,6 @@ package util
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"ms-api/config"
 	"net/http"
@@ -36,15 +35,15 @@ func NewAuthUtil(identifer string, domain string, host string) AuthUtil {
 			// Verify 'aud' claim
 			checkAud := token.Claims.(jwt.MapClaims).VerifyAudience(identifer, false)
 			if !checkAud {
-				return token, errors.New("Invalid audience.")
+				return token, ErrAuthInvalidAudience
 			}
 			// Verify 'iss' claim
 			checkIss := token.Claims.(jwt.MapClaims).VerifyIssuer(domain, false)
 			if !checkIss {
-				return token, errors.New("Invalid issuer.")
+				return token, ErrAuthInvalidIssuer
 			}
 			// Get pem certification
-			cert, err := AuthUtil.GetPemCert(AuthUtil{}, token)
+			cert, err := AuthUtilGetPemCert(token)
 			if err != nil {
 				panic(err.Error())
 			}
@@ -85,7 +84,7 @@ func (a AuthUtil) CorsMiddleware() gin.HandlerFunc {
 	}
 }
 
-func (AuthUtil) GetPemCert(token *jwt.Token) (*string, error) {
+func AuthUtilGetPemCert(token *jwt.Token) (*string, error) {
 	url := fmt.Sprintf("%s.well-known/jwks.json", config.Config.Auth0Domain)
 	resp, err := http.Get(url)
 	if err != nil {
@@ -106,13 +105,13 @@ func (AuthUtil) GetPemCert(token *jwt.Token) (*string, error) {
 		}
 	}
 	if cert == "" {
-		err := errors.New("Unable to find appropriate key.")
+		err := ErrAuthPemCertNotFound
 		return nil, err
 	}
 	return &cert, nil
 }
 
-func (AuthUtil) GetUserId(ctx *gin.Context) string {
+func AuthUtilGetUserId(ctx *gin.Context) string {
 	user := ctx.Request.Context().Value("user")
 	claims := user.(*jwt.Token).Claims.(jwt.MapClaims)
 	sub := claims["sub"].(string)

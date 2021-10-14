@@ -37,7 +37,7 @@ func init() {
 	if err := db.Migrator().DropTable(&Video{}); err != nil {
 		log.Fatalln(err)
 	}
-	if err := db.Migrator().DropTable(&View{}); err != nil {
+	if err := db.Migrator().DropTable(&Analysis{}); err != nil {
 		log.Fatalln(err)
 	}
 	if err := db.Migrator().DropTable(&Rate{}); err != nil {
@@ -48,7 +48,7 @@ func init() {
 	if err := db.AutoMigrate(&Video{}); err != nil {
 		log.Fatalln(err)
 	}
-	if err := db.AutoMigrate(&View{}); err != nil {
+	if err := db.AutoMigrate(&Analysis{}); err != nil {
 		log.Fatalln(err)
 	}
 	if err := db.AutoMigrate(&Rate{}); err != nil {
@@ -61,8 +61,8 @@ func init() {
 			log.Fatalln(err)
 		}
 	}
-	if !db.Migrator().HasTable(&View{}) {
-		if err := db.Migrator().CreateTable(&View{}); err != nil {
+	if !db.Migrator().HasTable(&Analysis{}) {
+		if err := db.Migrator().CreateTable(&Analysis{}); err != nil {
 			log.Fatalln(err)
 		}
 	}
@@ -81,13 +81,13 @@ func init() {
 		}
 		db.Create(&video)
 
-		view := View{
+		analysis := Analysis{
 			UserId:    fmt.Sprintf("user_%d", id),
 			VideoId:   video.Id,
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
-		db.Create(&view)
+		db.Create(&analysis)
 
 		now := time.Now()
 

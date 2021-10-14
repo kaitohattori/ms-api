@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"ms-api/app/controller"
-	"ms-api/app/repository"
-	"ms-api/app/service"
 	"ms-api/app/util"
 	"ms-api/config"
 	_ "ms-api/docs"
@@ -50,21 +48,10 @@ func StartServer() {
 	)
 	r.Use(authUtil.CorsMiddleware())
 
-	videoRepository := repository.NewVideoRepository()
-	videoService := service.NewVideoService(videoRepository)
-	videoController := controller.NewVideoController(videoService)
-
-	viewRepository := repository.NewViewRepository()
-	viewService := service.NewViewService(viewRepository)
-	viewController := controller.NewViewController(viewService)
-
-	rateRepository := repository.NewRateRepository()
-	rateService := service.NewRateService(rateRepository)
-	rateController := controller.NewRateController(rateService)
-
-	mediaRepository := repository.NewMediaRepository()
-	mediaService := service.NewMediaService(mediaRepository)
-	mediaController := controller.NewMediaController(mediaService)
+	videoController := controller.NewVideoController()
+	analysisController := controller.NewAnalysisController()
+	rateController := controller.NewRateController()
+	thumbnailController := controller.NewThumbnailController()
 
 	v1 := r.Group("/api/v1")
 	{
@@ -76,10 +63,14 @@ func StartServer() {
 			videos.POST(":id", authUtil.CheckJWT(), videoController.Update)
 			videos.DELETE(":id", authUtil.CheckJWT(), videoController.Delete)
 		}
-		views := v1.Group("/videos")
+		video_upload := v1.Group("/videos")
 		{
-			views.GET(":id/view/total", viewController.Total)
-			views.POST(":id/view", authUtil.CheckJWT(), viewController.Add)
+			video_upload.POST("upload", authUtil.CheckJWT(), videoController.Upload)
+		}
+		analysis := v1.Group("/videos")
+		{
+			analysis.GET(":id/analysis/total", analysisController.Total)
+			analysis.POST(":id/analysis", authUtil.CheckJWT(), analysisController.Add)
 		}
 		rates := v1.Group("/videos")
 		{
@@ -87,10 +78,9 @@ func StartServer() {
 			rates.GET(":id/rate/average", rateController.Average)
 			rates.POST(":id/rate", authUtil.CheckJWT(), rateController.Update)
 		}
-		media := v1.Group("/videos")
+		thumbnail := v1.Group("/videos")
 		{
-			media.GET(":id/thumbnail", mediaController.GetThumbnailImage)
-			media.POST("upload", authUtil.CheckJWT(), mediaController.Upload)
+			thumbnail.GET(":id/thumbnail", thumbnailController.GetThumbnail)
 		}
 		videos.Use(
 			timeout.Timeout(
@@ -100,7 +90,15 @@ func StartServer() {
 					fmt.Println("Request Timeout : ", r.URL.String())
 				})),
 		)
-		views.Use(
+		video_upload.Use(
+			timeout.Timeout(
+				timeout.WithTimeout(config.Config.FileUploadAPITimeout),
+				timeout.WithErrorHttpCode(http.StatusRequestTimeout),
+				timeout.WithCallBack(func(r *http.Request) {
+					fmt.Println("Request Timeout : ", r.URL.String())
+				})),
+		)
+		analysis.Use(
 			timeout.Timeout(
 				timeout.WithTimeout(config.Config.APITimeout),
 				timeout.WithErrorHttpCode(http.StatusRequestTimeout),
@@ -116,9 +114,9 @@ func StartServer() {
 					fmt.Println("Request Timeout : ", r.URL.String())
 				})),
 		)
-		media.Use(
+		thumbnail.Use(
 			timeout.Timeout(
-				timeout.WithTimeout(config.Config.MediaAPITimeout),
+				timeout.WithTimeout(config.Config.APITimeout),
 				timeout.WithErrorHttpCode(http.StatusRequestTimeout),
 				timeout.WithCallBack(func(r *http.Request) {
 					fmt.Println("Request Timeout : ", r.URL.String())

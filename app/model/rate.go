@@ -1,6 +1,7 @@
 package model
 
 import (
+	"ms-api/app/util"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +17,7 @@ type Rate struct {
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 }
 
-func (Rate) FindOne(ctx *gin.Context, videoId int, userId string) (*Rate, error) {
+func RateFindOne(ctx *gin.Context, videoId int, userId string) (*Rate, error) {
 	rate := Rate{}
 	ctxDB := DbConnection.WithContext(ctx.Request.Context())
 	err := ctxDB.Where("video_id = ? AND user_id = ?", videoId, userId).First(&rate).Error
@@ -32,7 +33,7 @@ func (Rate) FindOne(ctx *gin.Context, videoId int, userId string) (*Rate, error)
 	}
 }
 
-func (Rate) Average(ctx *gin.Context, videoId int) (*float32, error) {
+func RateAverage(ctx *gin.Context, videoId int) (*float32, error) {
 	result := []struct {
 		Average float32
 	}{}
@@ -42,7 +43,7 @@ func (Rate) Average(ctx *gin.Context, videoId int) (*float32, error) {
 		return nil, err
 	}
 	if len(result) == 0 {
-		return nil, ErrRecordNotFound
+		return nil, util.ErrRecordNotFound
 	}
 
 	select {
@@ -60,7 +61,7 @@ func (r *Rate) Update(ctx *gin.Context) (*Rate, error) {
 		DoUpdates: clause.AssignmentColumns([]string{"value", "updated_at"}),
 	}).Create(&r)
 
-	rate, err := Rate.FindOne(Rate{}, ctx, r.VideoId, r.UserId)
+	rate, err := RateFindOne(ctx, r.VideoId, r.UserId)
 	if err != nil {
 		return nil, err
 	}
