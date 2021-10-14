@@ -91,7 +91,7 @@ func (c *VideoController) Get(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	video, err := model.Video.FindOne(model.Video{}, ctx, videoId)
+	video, err := model.VideoFindOne(ctx, videoId)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
@@ -115,17 +115,12 @@ func (c *VideoController) Get(ctx *gin.Context) {
 func (c *VideoController) Add(ctx *gin.Context) {
 	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
 	title := ctx.PostForm("title")
-	v := &model.Video{
-		Title:     title,
-		UserId:    userId,
-		UpdatedAt: time.Now(),
-		CreatedAt: time.Now(),
-	}
-	if err := v.Insert(ctx); err != nil {
+	video, err := model.VideoInsert(ctx, userId, title)
+	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, v)
+	ctx.JSON(http.StatusOK, video)
 }
 
 // VideoController Update docs
@@ -184,7 +179,7 @@ func (c *VideoController) Delete(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	video, err := model.Video.FindOne(model.Video{}, ctx, videoId)
+	video, err := model.VideoFindOne(ctx, videoId)
 	if err != nil {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
@@ -221,7 +216,7 @@ func (c *VideoController) Upload(ctx *gin.Context) {
 		return
 	}
 	title := ctx.PostForm("title")
-	video, err := model.Video.Upload(model.Video{}, ctx, userId, title, file, *header)
+	video, err := model.VideoUpload(ctx, userId, title, file, *header)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return

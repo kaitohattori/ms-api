@@ -23,15 +23,15 @@ type Video struct {
 
 func VideoFind(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
 	if filter.SortType == VideoSortTypePopular {
-		return Video.FindAllSortedByAnalysisCount(Video{}, ctx, filter)
+		return VideoFindAllSortedByAnalysisCount(ctx, filter)
 	} else if filter.SortType == VideoSortTypeRecommended {
-		return Video.FindAllRecommended(Video{}, ctx, filter)
+		return VideoFindAllRecommended(ctx, filter)
 	} else {
 		return nil, ErrRecordNotFound
 	}
 }
 
-func (Video) FindAllSortedByAnalysisCount(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
+func VideoFindAllSortedByAnalysisCount(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
 	videos := []Video{}
 	ctxDB := DbConnection.WithContext(ctx)
 	// subQuery := ctxDB.Select("video_id", "count(id) as analysis_count").Table("analyses").Group("video_id")
@@ -59,7 +59,7 @@ func (Video) FindAllSortedByAnalysisCount(ctx *gin.Context, filter VideoFilter) 
 	}
 }
 
-func (Video) FindAllRecommended(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
+func VideoFindAllRecommended(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
 	videos := []Video{}
 	url := fmt.Sprintf("%s/videos/recommended?userId=%s&limit=%d", config.Config.RecommendationAPIURL(), *filter.UserId, *filter.Limit)
 	req, err := http.NewRequest("GET", url, nil)
@@ -85,7 +85,7 @@ func (Video) FindAllRecommended(ctx *gin.Context, filter VideoFilter) ([]Video, 
 	}
 }
 
-func (Video) FindOne(ctx *gin.Context, videoId int) (*Video, error) {
+func VideoFindOne(ctx *gin.Context, videoId int) (*Video, error) {
 	video := Video{}
 	ctxDB := DbConnection.WithContext(ctx.Request.Context())
 	if err := ctxDB.First(&video, videoId).Error; err != nil {
@@ -100,17 +100,24 @@ func (Video) FindOne(ctx *gin.Context, videoId int) (*Video, error) {
 	}
 }
 
-func (v *Video) Insert(ctx *gin.Context) error {
+func VideoInsert(ctx *gin.Context, userId string, title string) (*Video, error) {
+	v := &Video{
+		Title:     title,
+		UserId:    userId,
+		UpdatedAt: time.Now(),
+		CreatedAt: time.Now(),
+	}
+
 	ctxDB := DbConnection.WithContext(ctx.Request.Context())
 	if err := ctxDB.Create(&v).Error; err != nil {
-		return err
+		return nil, err
 	}
 
 	select {
 	case <-ctx.Done():
-		return ctx.Err()
+		return nil, ctx.Err()
 	default:
-		return nil
+		return v, nil
 	}
 }
 
@@ -142,7 +149,7 @@ func (v *Video) Delete(ctx *gin.Context) error {
 	}
 }
 
-func (Video) Upload(ctx *gin.Context, userId string, title string, file multipart.File, fileHeader multipart.FileHeader) (*Video, error) {
+func VideoUpload(ctx *gin.Context, userId string, title string, file multipart.File, fileHeader multipart.FileHeader) (*Video, error) {
 	ctxDB := DbConnection.WithContext(ctx.Request.Context())
 	tx := ctxDB.Begin()
 
