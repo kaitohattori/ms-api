@@ -38,7 +38,7 @@ func (c *RateController) Get(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	rate, err := model.Rate.FindOne(model.Rate{}, ctx, videoId, userId)
+	rate, err := model.RateFindOne(ctx, videoId, userId)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
@@ -108,7 +108,7 @@ func (c *RateController) Average(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	value, err := model.Rate.Average(model.Rate{}, ctx, videoId)
+	value, err := model.RateAverage(ctx, videoId)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
