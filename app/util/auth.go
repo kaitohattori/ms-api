@@ -44,7 +44,7 @@ func NewAuthUtil(identifer string, domain string, host string) AuthUtil {
 				return token, errors.New("Invalid issuer.")
 			}
 			// Get pem certification
-			cert, err := AuthUtil.GetPemCert(AuthUtil{}, token)
+			cert, err := AuthUtilGetPemCert(token)
 			if err != nil {
 				panic(err.Error())
 			}
@@ -85,7 +85,7 @@ func (a AuthUtil) CorsMiddleware() gin.HandlerFunc {
 	}
 }
 
-func (AuthUtil) GetPemCert(token *jwt.Token) (*string, error) {
+func AuthUtilGetPemCert(token *jwt.Token) (*string, error) {
 	url := fmt.Sprintf("%s.well-known/jwks.json", config.Config.Auth0Domain)
 	resp, err := http.Get(url)
 	if err != nil {
@@ -112,7 +112,7 @@ func (AuthUtil) GetPemCert(token *jwt.Token) (*string, error) {
 	return &cert, nil
 }
 
-func (AuthUtil) GetUserId(ctx *gin.Context) string {
+func AuthUtilGetUserId(ctx *gin.Context) string {
 	user := ctx.Request.Context().Value("user")
 	claims := user.(*jwt.Token).Claims.(jwt.MapClaims)
 	sub := claims["sub"].(string)

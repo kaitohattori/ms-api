@@ -60,7 +60,7 @@ func (c *AnalysisController) Total(ctx *gin.Context) {
 // @Failure 500 {object} util.HTTPError
 // @Router /videos/{id}/analysis [post]
 func (c *AnalysisController) Add(ctx *gin.Context) {
-	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
+	userId := util.AuthUtilGetUserId(ctx)
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {

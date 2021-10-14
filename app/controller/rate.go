@@ -31,7 +31,7 @@ func NewRateController() *RateController {
 // @Failure 500 {object} util.HTTPError
 // @Router /videos/{id}/rate [get]
 func (c *RateController) Get(ctx *gin.Context) {
-	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
+	userId := util.AuthUtilGetUserId(ctx)
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
@@ -61,7 +61,7 @@ func (c *RateController) Get(ctx *gin.Context) {
 // @Failure 500 {object} util.HTTPError
 // @Router /videos/{id}/rate [post]
 func (c *RateController) Update(ctx *gin.Context) {
-	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
+	userId := util.AuthUtilGetUserId(ctx)
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {

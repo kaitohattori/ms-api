@@ -113,7 +113,7 @@ func (c *VideoController) Get(ctx *gin.Context) {
 // @Failure 500 {object} util.HTTPError
 // @Router /videos [post]
 func (c *VideoController) Add(ctx *gin.Context) {
-	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
+	userId := util.AuthUtilGetUserId(ctx)
 	title := ctx.PostForm("title")
 	video, err := model.VideoInsert(ctx, userId, title)
 	if err != nil {
@@ -138,7 +138,7 @@ func (c *VideoController) Add(ctx *gin.Context) {
 // @Failure 500 {object} util.HTTPError
 // @Router /videos/{id} [post]
 func (c *VideoController) Update(ctx *gin.Context) {
-	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
+	userId := util.AuthUtilGetUserId(ctx)
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
@@ -209,7 +209,7 @@ func (c *VideoController) Delete(ctx *gin.Context) {
 // @Failure 500 {object} util.HTTPError
 // @Router /videos/upload [post]
 func (c *VideoController) Upload(ctx *gin.Context) {
-	userId := util.AuthUtil.GetUserId(util.AuthUtil{}, ctx)
+	userId := util.AuthUtilGetUserId(ctx)
 	file, header, err := ctx.Request.FormFile("file")
 	if err != nil {
 		util.NewError(ctx, http.StatusBadRequest, err)
