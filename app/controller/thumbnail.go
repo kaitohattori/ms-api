@@ -16,7 +16,7 @@ func NewThumbnailController() *ThumbnailController {
 	return &ThumbnailController{}
 }
 
-// ThumbnailController GetThumbnailImage docs
+// ThumbnailController GetThumbnail docs
 // @Summary Get a video thumbnail image
 // @Description get video thumbnail image by Video ID
 // @Tags Thumbnail
@@ -28,14 +28,14 @@ func NewThumbnailController() *ThumbnailController {
 // @Failure 404 {object} util.HTTPError
 // @Failure 500 {object} util.HTTPError
 // @Router /videos/{id}/thumbnail [get]
-func (c *ThumbnailController) GetThumbnailImage(ctx *gin.Context) {
+func (c *ThumbnailController) GetThumbnail(ctx *gin.Context) {
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	thumbnailImage, err := model.ThumbnailImage.Get(model.ThumbnailImage{}, ctx, videoId)
+	thumbnailImage, err := model.ThumbnailGet(ctx, videoId)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return

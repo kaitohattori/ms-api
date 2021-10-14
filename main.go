@@ -80,7 +80,7 @@ func StartServer() {
 		}
 		thumbnail := v1.Group("/videos")
 		{
-			thumbnail.GET(":id/thumbnail", thumbnailController.GetThumbnailImage)
+			thumbnail.GET(":id/thumbnail", thumbnailController.GetThumbnail)
 		}
 		videos.Use(
 			timeout.Timeout(

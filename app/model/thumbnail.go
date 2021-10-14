@@ -9,27 +9,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ThumbnailImage struct {
+type Thumbnail struct {
 	Closer io.ReadCloser
 }
 
-func NewThumbnailImage(f *os.File) ThumbnailImage {
-	return ThumbnailImage{
+func NewThumbnail(f *os.File) Thumbnail {
+	return Thumbnail{
 		Closer: f,
 	}
 }
 
-func (ThumbnailImage) Get(ctx *gin.Context, videoId int) (*ThumbnailImage, error) {
+func ThumbnailGet(ctx *gin.Context, videoId int) (*Thumbnail, error) {
 	thumbnailFilePath := util.MediaUtil.ThumbnailFilePath(videoId)
 	f, err := os.Open(thumbnailFilePath)
 	if err != nil {
 		return nil, err
 	}
-	data := NewThumbnailImage(f)
+	data := NewThumbnail(f)
 	return &data, nil
 }
 
-func (t ThumbnailImage) Bytes() []byte {
+func (t Thumbnail) Bytes() []byte {
 	buffer := new(bytes.Buffer)
 	io.Copy(buffer, t.Closer)
 	return buffer.Bytes()
