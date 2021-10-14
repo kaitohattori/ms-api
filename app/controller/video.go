@@ -127,7 +127,7 @@ func (c *VideoController) Add(ctx *gin.Context) {
 // @Summary Update a video
 // @Description update video
 // @Tags Videos
-// @Accept json
+// @Accept mpfd
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Video ID"
@@ -148,8 +148,8 @@ func (c *VideoController) Update(ctx *gin.Context) {
 	title := ctx.PostForm("title")
 	v := &model.Video{
 		Id:        videoId,
-		Title:     title,
 		UserId:    userId,
+		Title:     title,
 		UpdatedAt: time.Now(),
 	}
 	if err := v.Update(ctx); err != nil {
