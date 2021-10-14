@@ -27,7 +27,7 @@ func VideoFind(ctx *gin.Context, filter VideoFilter) ([]Video, error) {
 	} else if filter.SortType == VideoSortTypeRecommended {
 		return VideoFindAllRecommended(ctx, filter)
 	} else {
-		return nil, ErrRecordNotFound
+		return nil, util.ErrRecordNotFound
 	}
 }
 
@@ -226,6 +226,6 @@ func (v VideoSortType) Valid() error {
 	case VideoSortTypePopular, VideoSortTypeRecommended:
 		return nil
 	default:
-		return fmt.Errorf("failed: %w get %s", ErrInvalidType, v)
+		return fmt.Errorf("failed: %w get %s", util.ErrInvalidType, v)
 	}
 }

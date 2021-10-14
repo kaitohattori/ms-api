@@ -1,6 +1,7 @@
 package model
 
 import (
+	"ms-api/app/util"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -42,7 +43,7 @@ func RateAverage(ctx *gin.Context, videoId int) (*float32, error) {
 		return nil, err
 	}
 	if len(result) == 0 {
-		return nil, ErrRecordNotFound
+		return nil, util.ErrRecordNotFound
 	}
 
 	select {
