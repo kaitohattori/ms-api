@@ -14,7 +14,7 @@ type Analysis struct {
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }
 
-func (Analysis) Count(ctx *gin.Context, videoId int) (*int, error) {
+func AnalysisCount(ctx *gin.Context, videoId int) (*int, error) {
 	var count int64
 	ctxDB := DbConnection.WithContext(ctx.Request.Context())
 	if err := ctxDB.Model(&Analysis{}).Where("video_id = ?", videoId).Count(&count).Error; err != nil {
@@ -30,16 +30,20 @@ func (Analysis) Count(ctx *gin.Context, videoId int) (*int, error) {
 	}
 }
 
-func (v *Analysis) Insert(ctx *gin.Context) error {
+func AnalysisInsert(ctx *gin.Context, userId string, videoId int) (*Analysis, error) {
+	analysis := &Analysis{
+		VideoId: videoId,
+		UserId:  userId,
+	}
 	ctxDB := DbConnection.WithContext(ctx.Request.Context())
-	if err := ctxDB.Create(&v).Error; err != nil {
-		return err
+	if err := ctxDB.Create(analysis).Error; err != nil {
+		return nil, err
 	}
 
 	select {
 	case <-ctx.Done():
-		return ctx.Err()
+		return nil, ctx.Err()
 	default:
-		return nil
+		return analysis, nil
 	}
 }
