@@ -35,7 +35,7 @@ func (c *ThumbnailController) GetThumbnail(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	thumbnailImage, err := model.ThumbnailGet(ctx, videoId)
+	thumbnailImage, err := model.ThumbnailGet(videoId)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return

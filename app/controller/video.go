@@ -55,7 +55,7 @@ func (c *VideoController) Find(ctx *gin.Context) {
 		return
 	}
 	filter := model.NewVideoFilter(sortType, limit, &userId)
-	videos, err := model.VideoFind(ctx, filter)
+	videos, err := model.VideoFind(filter)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
@@ -91,7 +91,7 @@ func (c *VideoController) Get(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	video, err := model.VideoFindOne(ctx, videoId)
+	video, err := model.VideoFindOne(videoId)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
@@ -115,7 +115,7 @@ func (c *VideoController) Get(ctx *gin.Context) {
 func (c *VideoController) Add(ctx *gin.Context) {
 	userId := util.AuthUtilGetUserId(ctx)
 	title := ctx.PostForm("title")
-	video, err := model.VideoInsert(ctx, userId, title)
+	video, err := model.VideoInsert(userId, title)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
@@ -152,7 +152,7 @@ func (c *VideoController) Update(ctx *gin.Context) {
 		Title:     title,
 		UpdatedAt: time.Now(),
 	}
-	if err := v.Update(ctx); err != nil {
+	if err := v.Update(); err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
@@ -179,12 +179,12 @@ func (c *VideoController) Delete(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	video, err := model.VideoFindOne(ctx, videoId)
+	video, err := model.VideoFindOne(videoId)
 	if err != nil {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	if err := video.Delete(ctx); err != nil {
+	if err := video.Delete(); err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}

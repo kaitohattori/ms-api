@@ -5,8 +5,6 @@ import (
 	"io"
 	"ms-api/app/util"
 	"os"
-
-	"github.com/gin-gonic/gin"
 )
 
 type Thumbnail struct {
@@ -19,7 +17,7 @@ func NewThumbnail(f *os.File) Thumbnail {
 	}
 }
 
-func ThumbnailGet(ctx *gin.Context, videoId int) (*Thumbnail, error) {
+func ThumbnailGet(videoId int) (*Thumbnail, error) {
 	thumbnailFilePath := util.FileUtil.ThumbnailFilePath(videoId)
 	f, err := os.Open(thumbnailFilePath)
 	if err != nil {
