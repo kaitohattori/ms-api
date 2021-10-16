@@ -15,7 +15,6 @@ docker-run: ## Run on docker
 	docker run $(NAME)
 
 docker-compose-build: ## Build by docker-compose
-	swag init
 	docker-compose build
 
 docker-compose-up: ## Run by docker-compose
