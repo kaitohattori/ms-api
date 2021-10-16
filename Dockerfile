@@ -3,13 +3,6 @@ FROM golang:1.16.8-alpine3.14 AS build
 WORKDIR /go/src/ms-api
 
 COPY . .
-# COPY /app ./app
-# COPY /config ./config
-# COPY /docs ./docs
-# COPY /scripts ./scripts
-# COPY go.mod ./
-# COPY go.sum ./
-# COPY main.go ./
 
 RUN apk add --no-cache ffmpeg
 
