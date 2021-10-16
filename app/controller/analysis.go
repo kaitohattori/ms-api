@@ -35,7 +35,7 @@ func (c *AnalysisController) Total(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	total, err := model.AnalysisCount(ctx, videoId)
+	total, err := model.AnalysisCount(videoId)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
@@ -67,7 +67,7 @@ func (c *AnalysisController) Add(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	analysis, err := model.AnalysisInsert(ctx, userId, videoId)
+	analysis, err := model.AnalysisInsert(userId, videoId)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
