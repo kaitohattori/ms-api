@@ -39,21 +39,34 @@ func main() {
 }
 
 func StartServer() {
-	r := gin.Default()
+	engine := gin.Default()
 
+	// Auth
 	authUtil := util.NewAuthUtil(
 		config.Config.Auth0Identifier,
 		config.Config.Auth0Domain,
 		config.Config.AuthHost,
 	)
-	r.Use(authUtil.CorsMiddleware())
+	engine.Use(authUtil.CorsMiddleware())
 
+	// Timeout
+	engine.Use(
+		timeout.Timeout(
+			timeout.WithTimeout(config.Config.APITimeout),
+			timeout.WithErrorHttpCode(http.StatusRequestTimeout),
+			timeout.WithCallBack(func(r *http.Request) {
+				fmt.Println("Request Timeout : ", r.URL.String())
+			})),
+	)
+
+	// Controller
 	videoController := controller.NewVideoController()
 	analysisController := controller.NewAnalysisController()
 	rateController := controller.NewRateController()
 	thumbnailController := controller.NewThumbnailController()
 
-	v1 := r.Group("/api/v1")
+	// Router
+	v1 := engine.Group("/api/v1")
 	{
 		videos := v1.Group("/videos")
 		{
@@ -82,47 +95,7 @@ func StartServer() {
 		{
 			thumbnail.GET(":id/thumbnail", thumbnailController.GetThumbnail)
 		}
-		videos.Use(
-			timeout.Timeout(
-				timeout.WithTimeout(config.Config.APITimeout),
-				timeout.WithErrorHttpCode(http.StatusRequestTimeout),
-				timeout.WithCallBack(func(r *http.Request) {
-					fmt.Println("Request Timeout : ", r.URL.String())
-				})),
-		)
-		video_upload.Use(
-			timeout.Timeout(
-				timeout.WithTimeout(config.Config.FileUploadAPITimeout),
-				timeout.WithErrorHttpCode(http.StatusRequestTimeout),
-				timeout.WithCallBack(func(r *http.Request) {
-					fmt.Println("Request Timeout : ", r.URL.String())
-				})),
-		)
-		analysis.Use(
-			timeout.Timeout(
-				timeout.WithTimeout(config.Config.APITimeout),
-				timeout.WithErrorHttpCode(http.StatusRequestTimeout),
-				timeout.WithCallBack(func(r *http.Request) {
-					fmt.Println("Request Timeout : ", r.URL.String())
-				})),
-		)
-		rates.Use(
-			timeout.Timeout(
-				timeout.WithTimeout(config.Config.APITimeout),
-				timeout.WithErrorHttpCode(http.StatusRequestTimeout),
-				timeout.WithCallBack(func(r *http.Request) {
-					fmt.Println("Request Timeout : ", r.URL.String())
-				})),
-		)
-		thumbnail.Use(
-			timeout.Timeout(
-				timeout.WithTimeout(config.Config.APITimeout),
-				timeout.WithErrorHttpCode(http.StatusRequestTimeout),
-				timeout.WithCallBack(func(r *http.Request) {
-					fmt.Println("Request Timeout : ", r.URL.String())
-				})),
-		)
 	}
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.Run(fmt.Sprintf(":%d", config.Config.WebAPIPort))
+	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	engine.Run(fmt.Sprintf(":%d", config.Config.WebAPIPort))
 }
