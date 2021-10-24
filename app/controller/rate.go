@@ -74,12 +74,11 @@ func (c *RateController) Update(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	now := time.Now()
 	rate := &model.Rate{
 		UserId:    userId,
 		VideoId:   videoId,
 		Value:     float32(value),
-		UpdatedAt: &now,
+		UpdatedAt: time.Now(),
 	}
 	newRate, err := rate.Update()
 	if err != nil {
