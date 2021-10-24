@@ -1,7 +1,7 @@
 package model
 
 import (
-	"ms-api/app/util"
+	"errors"
 	"time"
 
 	"gorm.io/gorm/clause"
@@ -34,7 +34,7 @@ func RateAverage(videoId int) (*float32, error) {
 		return nil, err
 	}
 	if len(result) == 0 {
-		return nil, util.ErrRecordNotFound
+		return nil, errors.New("record not found")
 	}
 	return &result[0].Average, nil
 }

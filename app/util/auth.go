@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"ms-api/config"
 	"net/http"
@@ -35,12 +36,12 @@ func NewAuthUtil(identifer string, domain string, host string) AuthUtil {
 			// Verify 'aud' claim
 			checkAud := token.Claims.(jwt.MapClaims).VerifyAudience(identifer, false)
 			if !checkAud {
-				return token, ErrAuthInvalidAudience
+				return token, errors.New("invalid audience")
 			}
 			// Verify 'iss' claim
 			checkIss := token.Claims.(jwt.MapClaims).VerifyIssuer(domain, false)
 			if !checkIss {
-				return token, ErrAuthInvalidIssuer
+				return token, errors.New("invalid issuer")
 			}
 			// Get pem certification
 			cert, err := AuthUtilGetPemCert(token)
@@ -105,7 +106,7 @@ func AuthUtilGetPemCert(token *jwt.Token) (*string, error) {
 		}
 	}
 	if cert == "" {
-		err := ErrAuthPemCertNotFound
+		err := errors.New("unable to find appropriate key")
 		return nil, err
 	}
 	return &cert, nil

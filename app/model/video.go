@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -29,7 +30,7 @@ func VideoFind(filter VideoFilter) ([]Video, error) {
 	} else if filter.SortType == VideoSortTypeRecommended {
 		return VideoFindAllRecommended(filter)
 	} else {
-		return nil, util.ErrRecordNotFound
+		return nil, errors.New("record not found")
 	}
 }
 
@@ -193,6 +194,6 @@ func (v VideoSortType) Valid() error {
 	case VideoSortTypePopular, VideoSortTypeRecommended:
 		return nil
 	default:
-		return fmt.Errorf("failed: %w get %s", util.ErrInvalidType, v)
+		return fmt.Errorf("failed: %w get %s", errors.New("invalid type"), v)
 	}
 }
