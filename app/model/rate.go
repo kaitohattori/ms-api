@@ -1,19 +1,19 @@
 package model
 
 import (
-	"ms-api/app/util"
+	"errors"
 	"time"
 
 	"gorm.io/gorm/clause"
 )
 
 type Rate struct {
-	Id        int        `json:"id" gorm:"unique;autoIncrement;not null"`
-	UserId    string     `json:"userId,omitempty" gorm:"primaryKey"`
-	VideoId   int        `json:"videoId,omitempty" gorm:"primaryKey"`
-	Value     float32    `json:"value,omitempty"`
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+	Id        int       `json:"id" gorm:"unique;autoIncrement;not null"`
+	UserId    string    `json:"userId,omitempty" gorm:"primaryKey"`
+	VideoId   int       `json:"videoId,omitempty" gorm:"primaryKey"`
+	Value     float32   `json:"value,omitempty"`
+	CreatedAt time.Time `json:"createdAt,omitempty"`
+	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }
 
 func RateFindOne(videoId int, userId string) (*Rate, error) {
@@ -34,7 +34,7 @@ func RateAverage(videoId int) (*float32, error) {
 		return nil, err
 	}
 	if len(result) == 0 {
-		return nil, util.ErrRecordNotFound
+		return nil, errors.New("record not found")
 	}
 	return &result[0].Average, nil
 }

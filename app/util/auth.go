@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"ms-api/config"
 	"net/http"
@@ -12,7 +13,6 @@ import (
 )
 
 type AuthUtil struct {
-	Host          string
 	jwtMiddleware *jwtmiddleware.JWTMiddleware
 }
 
@@ -29,18 +29,18 @@ type JSONWebKeys struct {
 	X5c []string `json:"x5c"`
 }
 
-func NewAuthUtil(identifer string, domain string, host string) AuthUtil {
+func NewAuthUtil(identifer string, domain string) AuthUtil {
 	jwtMiddleware := jwtmiddleware.New(jwtmiddleware.Options{
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
 			// Verify 'aud' claim
 			checkAud := token.Claims.(jwt.MapClaims).VerifyAudience(identifer, false)
 			if !checkAud {
-				return token, ErrAuthInvalidAudience
+				return token, errors.New("invalid audience")
 			}
 			// Verify 'iss' claim
 			checkIss := token.Claims.(jwt.MapClaims).VerifyIssuer(domain, false)
 			if !checkIss {
-				return token, ErrAuthInvalidIssuer
+				return token, errors.New("invalid issuer")
 			}
 			// Get pem certification
 			cert, err := AuthUtilGetPemCert(token)
@@ -53,7 +53,6 @@ func NewAuthUtil(identifer string, domain string, host string) AuthUtil {
 		SigningMethod: jwt.SigningMethodRS256,
 	})
 	return AuthUtil{
-		Host:          host,
 		jwtMiddleware: jwtMiddleware,
 	}
 }
@@ -63,23 +62,6 @@ func (a AuthUtil) CheckJWT() gin.HandlerFunc {
 		jwtMid := *a.jwtMiddleware
 		if err := jwtMid.CheckJWT(c.Writer, c.Request); err != nil {
 			c.AbortWithStatus(401)
-		}
-	}
-}
-
-func (a AuthUtil) CorsMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", a.Host)
-		c.Writer.Header().Set("Access-Control-Max-Age", "86400")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(200)
-		} else {
-			c.Next()
 		}
 	}
 }
@@ -105,7 +87,7 @@ func AuthUtilGetPemCert(token *jwt.Token) (*string, error) {
 		}
 	}
 	if cert == "" {
-		err := ErrAuthPemCertNotFound
+		err := errors.New("unable to find appropriate key")
 		return nil, err
 	}
 	return &cert, nil

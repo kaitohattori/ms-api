@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"ms-api/app/controller"
 	"ms-api/app/util"
 	"ms-api/config"
@@ -35,7 +36,25 @@ import (
 // @name Authorization
 
 func main() {
+	util.LoggingSettings(config.Config.LogFile)
 	StartServer()
+}
+
+func CorsMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", config.Config.Auth0Host)
+		c.Writer.Header().Set("Access-Control-Max-Age", "86400")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(200)
+		} else {
+			c.Next()
+		}
+	}
 }
 
 func StartServer() {
@@ -45,9 +64,8 @@ func StartServer() {
 	authUtil := util.NewAuthUtil(
 		config.Config.Auth0Identifier,
 		config.Config.Auth0Domain,
-		config.Config.AuthHost,
 	)
-	engine.Use(authUtil.CorsMiddleware())
+	engine.Use(CorsMiddleware())
 
 	// Timeout
 	engine.Use(
@@ -55,11 +73,12 @@ func StartServer() {
 			timeout.WithTimeout(config.Config.APITimeout),
 			timeout.WithErrorHttpCode(http.StatusRequestTimeout),
 			timeout.WithCallBack(func(r *http.Request) {
-				fmt.Println("Request Timeout : ", r.URL.String())
+				log.Println("Request Timeout : ", r.URL.String())
 			})),
 	)
 
 	// Controller
+	authController := controller.NewAuthController(authUtil)
 	videoController := controller.NewVideoController()
 	analysisController := controller.NewAnalysisController()
 	rateController := controller.NewRateController()
@@ -68,6 +87,10 @@ func StartServer() {
 	// Router
 	v1 := engine.Group("/api/v1")
 	{
+		auth := v1.Group("/")
+		{
+			auth.GET("login", authController.Login)
+		}
 		videos := v1.Group("/videos")
 		{
 			videos.GET("", videoController.Find)
@@ -96,6 +119,6 @@ func StartServer() {
 			thumbnail.GET(":id/thumbnail", thumbnailController.GetThumbnail)
 		}
 	}
-	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	engine.GET(fmt.Sprintf("%s/*any", config.Config.ApiDocsPath), ginSwagger.WrapHandler(swaggerFiles.Handler))
 	engine.Run(fmt.Sprintf(":%d", config.Config.WebAPIPort))
 }

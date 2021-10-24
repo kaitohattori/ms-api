@@ -10,7 +10,8 @@ import (
 )
 
 type ConfigList struct {
-	LogFile string
+	LogFile     string
+	ApiDocsPath string
 
 	WebAPIHost            string
 	WebAPIPort            int
@@ -30,9 +31,11 @@ type ConfigList struct {
 	DbPassword string
 	DbSslMode  string
 
-	Auth0Domain     string
-	Auth0Identifier string
-	AuthHost        string
+	Auth0Domain       string
+	Auth0Identifier   string
+	Auth0Host         string
+	Auth0ClientId     string
+	Auth0ClientSecret string
 }
 
 func (c ConfigList) WebAPIURL() string {
@@ -53,12 +56,13 @@ var Config ConfigList
 func init() {
 	cfg, err := ini.Load("config/config.ini")
 	if err != nil {
-		log.Printf("Failed to read file: %v", err)
+		log.Fatalln("Failed to read file: ", err)
 		os.Exit(1)
 	}
 
 	Config = ConfigList{
 		LogFile:               cfg.Section("api").Key("log_file").String(),
+		ApiDocsPath:           cfg.Section("api").Key("docs_path").String(),
 		WebAPIHost:            cfg.Section("api").Key("web_api_host").String(),
 		WebAPIPort:            cfg.Section("api").Key("web_api_port").MustInt(),
 		StreamAPIHost:         cfg.Section("api").Key("stream_api_host").String(),
@@ -75,6 +79,8 @@ func init() {
 		DbSslMode:             cfg.Section("db").Key("db_ssl_mode").String(),
 		Auth0Domain:           cfg.Section("auth0").Key("domain").String(),
 		Auth0Identifier:       cfg.Section("auth0").Key("identifier").String(),
-		AuthHost:              cfg.Section("auth0").Key("host").String(),
+		Auth0Host:             cfg.Section("auth0").Key("host").String(),
+		Auth0ClientId:         cfg.Section("auth0").Key("client_id").String(),
+		Auth0ClientSecret:     cfg.Section("auth0").Key("client_secret").String(),
 	}
 }

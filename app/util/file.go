@@ -3,6 +3,7 @@ package util
 import (
 	"fmt"
 	"io"
+	"log"
 	"mime/multipart"
 	"os"
 	"os/exec"
@@ -63,7 +64,7 @@ func (u FileUtilFuncs) SaveVideo(file multipart.File, header multipart.FileHeade
 func (u FileUtilFuncs) ProcessVideo(ctx *gin.Context, videoId int, srcFilePath string) error {
 	dstDirPath, _ := filepath.Abs(fmt.Sprintf("%s/%d", u.MediaRoot, videoId))
 	cmd := exec.CommandContext(ctx, "/bin/sh", u.VideoProcessorScriptFilePath, srcFilePath, dstDirPath, "1920x1080")
-	fmt.Println(cmd)
+	log.Println(cmd)
 	// cmd.Start()
 	if err := cmd.Run(); err != nil {
 		return err

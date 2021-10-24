@@ -36,4 +36,4 @@ $ make docker-run
 
 ## ドキュメント
 
-http://localhost:8080/swagger/index.html#/
+http://localhost:8080/docs/api/v1/index.html#/

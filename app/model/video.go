@@ -2,12 +2,15 @@ package model
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"mime/multipart"
 	"ms-api/app/util"
 	"ms-api/config"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -27,7 +30,7 @@ func VideoFind(filter VideoFilter) ([]Video, error) {
 	} else if filter.SortType == VideoSortTypeRecommended {
 		return VideoFindAllRecommended(filter)
 	} else {
-		return nil, util.ErrRecordNotFound
+		return nil, errors.New("record not found")
 	}
 }
 
@@ -53,16 +56,31 @@ func VideoFindAllSortedByAnalysisCount(filter VideoFilter) ([]Video, error) {
 
 func VideoFindAllRecommended(filter VideoFilter) ([]Video, error) {
 	videos := []Video{}
-	url := fmt.Sprintf("%s/videos/recommended?userId=%s&limit=%d", config.Config.RecommendationAPIURL(), *filter.UserId, *filter.Limit)
-	req, err := http.NewRequest("GET", url, nil)
+
+	url := fmt.Sprintf("%s/videos/recommended", config.Config.RecommendationAPIURL())
+	request, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Println(err)
+	}
+
+	// Params
+	params := request.URL.Query()
+	if filter.UserId != nil && *filter.UserId != "" {
+		params.Add("userId", *filter.UserId)
+	}
+	if filter.Limit != nil {
+		params.Add("limit", strconv.Itoa(*filter.Limit))
+	}
+	request.URL.RawQuery = params.Encode()
+
+	// Request
+	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	byteArray, _ := ioutil.ReadAll(resp.Body)
+	defer response.Body.Close()
+
+	byteArray, _ := ioutil.ReadAll(response.Body)
 	err = json.Unmarshal(byteArray, &videos)
 	if err != nil {
 		return nil, err
@@ -164,10 +182,6 @@ type VideoFilter struct {
 	UserId   *string       `json:"userId,omitempty"`
 }
 
-func NewVideoFilter(sortType VideoSortType, limit *int, userId *string) VideoFilter {
-	return VideoFilter{SortType: sortType, Limit: limit, UserId: userId}
-}
-
 type VideoSortType string
 
 const (
@@ -180,6 +194,10 @@ func (v VideoSortType) Valid() error {
 	case VideoSortTypePopular, VideoSortTypeRecommended:
 		return nil
 	default:
-		return fmt.Errorf("failed: %w get %s", util.ErrInvalidType, v)
+		return fmt.Errorf("failed: %w get %s", errors.New("invalid type"), v)
 	}
+}
+
+func VideoSortTypeDefault() VideoSortType {
+	return VideoSortTypePopular
 }

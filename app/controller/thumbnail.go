@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"ms-api/app/model"
 	"ms-api/app/util"
 	"net/http"
@@ -32,11 +33,13 @@ func (c *ThumbnailController) GetThumbnail(ctx *gin.Context) {
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	thumbnailImage, err := model.ThumbnailGet(videoId)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
