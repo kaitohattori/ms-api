@@ -17,11 +17,15 @@ docker-run: ## Run on docker
 docker-compose-build: ## Build by docker-compose
 	docker-compose build
 
-docker-compose-up: ## Run by docker-compose
+docker-compose-up: ## docker-compose up
 	docker-compose up
 
 docker-compose-down: ## Stop by docker-compose
 	docker-compose down
+
+docker-compose-run: ## Run by docker-compose
+	make docker-compose-build
+	make docker-compose-up
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

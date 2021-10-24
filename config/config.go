@@ -10,7 +10,8 @@ import (
 )
 
 type ConfigList struct {
-	LogFile string
+	LogFile     string
+	ApiDocsPath string
 
 	WebAPIHost            string
 	WebAPIPort            int
@@ -59,6 +60,7 @@ func init() {
 
 	Config = ConfigList{
 		LogFile:               cfg.Section("api").Key("log_file").String(),
+		ApiDocsPath:           cfg.Section("api").Key("docs_path").String(),
 		WebAPIHost:            cfg.Section("api").Key("web_api_host").String(),
 		WebAPIPort:            cfg.Section("api").Key("web_api_port").MustInt(),
 		StreamAPIHost:         cfg.Section("api").Key("stream_api_host").String(),

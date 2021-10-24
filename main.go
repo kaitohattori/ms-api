@@ -112,6 +112,6 @@ func StartServer() {
 			thumbnail.GET(":id/thumbnail", thumbnailController.GetThumbnail)
 		}
 	}
-	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	engine.GET(fmt.Sprintf("%s/*any", config.Config.ApiDocsPath), ginSwagger.WrapHandler(swaggerFiles.Handler))
 	engine.Run(fmt.Sprintf(":%d", config.Config.WebAPIPort))
 }
