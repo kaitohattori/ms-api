@@ -31,9 +31,11 @@ type ConfigList struct {
 	DbPassword string
 	DbSslMode  string
 
-	Auth0Domain     string
-	Auth0Identifier string
-	AuthHost        string
+	Auth0Domain       string
+	Auth0Identifier   string
+	Auth0Host         string
+	Auth0ClientId     string
+	Auth0ClientSecret string
 }
 
 func (c ConfigList) WebAPIURL() string {
@@ -77,6 +79,8 @@ func init() {
 		DbSslMode:             cfg.Section("db").Key("db_ssl_mode").String(),
 		Auth0Domain:           cfg.Section("auth0").Key("domain").String(),
 		Auth0Identifier:       cfg.Section("auth0").Key("identifier").String(),
-		AuthHost:              cfg.Section("auth0").Key("host").String(),
+		Auth0Host:             cfg.Section("auth0").Key("host").String(),
+		Auth0ClientId:         cfg.Section("auth0").Key("client_id").String(),
+		Auth0ClientSecret:     cfg.Section("auth0").Key("client_secret").String(),
 	}
 }

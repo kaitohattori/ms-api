@@ -42,7 +42,7 @@ func main() {
 
 func CorsMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", config.Config.AuthHost)
+		c.Writer.Header().Set("Access-Control-Allow-Origin", config.Config.Auth0Host)
 		c.Writer.Header().Set("Access-Control-Max-Age", "86400")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
@@ -78,6 +78,7 @@ func StartServer() {
 	)
 
 	// Controller
+	authController := controller.NewAuthController(authUtil)
 	videoController := controller.NewVideoController()
 	analysisController := controller.NewAnalysisController()
 	rateController := controller.NewRateController()
@@ -86,6 +87,10 @@ func StartServer() {
 	// Router
 	v1 := engine.Group("/api/v1")
 	{
+		auth := v1.Group("/")
+		{
+			auth.GET("login", authController.Login)
+		}
 		videos := v1.Group("/videos")
 		{
 			videos.GET("", videoController.Find)
