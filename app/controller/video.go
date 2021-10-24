@@ -26,7 +26,7 @@ func NewVideoController() *VideoController {
 // @Produce json
 // @Param userId query string false "User ID"
 // @Param limit query int false "limit"
-// @Param sortType query string true "sort type [popular, recommended]"
+// @Param sortType query string true "sort type [popular, recommended]" default(popular)
 // @Success 200 {array} model.Video
 // @Failure 400 {object} util.HTTPError
 // @Failure 404 {object} util.HTTPError
@@ -50,9 +50,8 @@ func (c *VideoController) Find(ctx *gin.Context) {
 	// sortType
 	sortType := model.VideoSortType(sortTypeStr)
 	if err := sortType.Valid(); err != nil {
-		fmt.Println(err)
-		util.NewError(ctx, http.StatusBadRequest, err)
-		return
+		fmt.Println(err, "set sortType to default value [popular]")
+		sortType = model.VideoSortTypeDefault()
 	}
 	filter := model.VideoFilter{SortType: sortType, Limit: limit, UserId: &userId}
 	videos, err := model.VideoFind(filter)

@@ -197,3 +197,7 @@ func (v VideoSortType) Valid() error {
 		return fmt.Errorf("failed: %w get %s", errors.New("invalid type"), v)
 	}
 }
+
+func VideoSortTypeDefault() VideoSortType {
+	return VideoSortTypePopular
+}
