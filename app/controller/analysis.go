@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"ms-api/app/model"
 	"ms-api/app/util"
 	"net/http"
@@ -32,11 +33,13 @@ func (c *AnalysisController) Total(ctx *gin.Context) {
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	total, err := model.AnalysisCount(videoId)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
@@ -64,11 +67,13 @@ func (c *AnalysisController) Add(ctx *gin.Context) {
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	analysis, err := model.AnalysisInsert(userId, videoId)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}

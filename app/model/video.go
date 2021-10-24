@@ -60,7 +60,7 @@ func VideoFindAllRecommended(filter VideoFilter) ([]Video, error) {
 	url := fmt.Sprintf("%s/videos/recommended", config.Config.RecommendationAPIURL())
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	// Params

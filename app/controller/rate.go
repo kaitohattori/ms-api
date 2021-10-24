@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"ms-api/app/model"
 	"ms-api/app/util"
 	"net/http"
@@ -35,11 +36,13 @@ func (c *RateController) Get(ctx *gin.Context) {
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	rate, err := model.RateFindOne(videoId, userId)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
@@ -65,12 +68,14 @@ func (c *RateController) Update(ctx *gin.Context) {
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	valueStr := ctx.Query("value")
 	value, err := strconv.ParseFloat(valueStr, 32)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
@@ -82,6 +87,7 @@ func (c *RateController) Update(ctx *gin.Context) {
 	}
 	newRate, err := rate.Update()
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
@@ -104,11 +110,13 @@ func (c *RateController) Average(ctx *gin.Context) {
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	value, err := model.RateAverage(videoId)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}

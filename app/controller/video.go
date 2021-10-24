@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"fmt"
+	"log"
 	"ms-api/app/model"
 	"ms-api/app/util"
 	"net/http"
@@ -41,6 +41,7 @@ func (c *VideoController) Find(ctx *gin.Context) {
 	if limitStr != "" {
 		value, err := strconv.Atoi(limitStr)
 		if err != nil {
+			log.Println(err)
 			util.NewError(ctx, http.StatusBadRequest, err)
 			return
 		} else {
@@ -50,12 +51,14 @@ func (c *VideoController) Find(ctx *gin.Context) {
 	// sortType
 	sortType := model.VideoSortType(sortTypeStr)
 	if err := sortType.Valid(); err != nil {
-		fmt.Println(err, "set sortType to default value [popular]")
+		log.Println(err)
+		log.Println("Set sortType to default value [popular]")
 		sortType = model.VideoSortTypeDefault()
 	}
 	filter := model.VideoFilter{SortType: sortType, Limit: limit, UserId: &userId}
 	videos, err := model.VideoFind(filter)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
@@ -63,7 +66,7 @@ func (c *VideoController) Find(ctx *gin.Context) {
 
 	select {
 	case <-ctx.Done():
-		fmt.Println(ctx.Err())
+		log.Println(ctx.Err())
 		return
 	default:
 		return
@@ -87,11 +90,13 @@ func (c *VideoController) Get(ctx *gin.Context) {
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	video, err := model.VideoFindOne(videoId)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
@@ -116,6 +121,7 @@ func (c *VideoController) Add(ctx *gin.Context) {
 	title := ctx.PostForm("title")
 	video, err := model.VideoInsert(userId, title)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
@@ -141,6 +147,7 @@ func (c *VideoController) Update(ctx *gin.Context) {
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
@@ -152,6 +159,7 @@ func (c *VideoController) Update(ctx *gin.Context) {
 		UpdatedAt: time.Now(),
 	}
 	if err := v.Update(); err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
@@ -175,15 +183,18 @@ func (c *VideoController) Delete(ctx *gin.Context) {
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	video, err := model.VideoFindOne(videoId)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	if err := video.Delete(); err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
@@ -211,12 +222,14 @@ func (c *VideoController) Upload(ctx *gin.Context) {
 	userId := util.AuthUtilGetUserId(ctx)
 	file, header, err := ctx.Request.FormFile("file")
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	title := ctx.PostForm("title")
 	video, err := model.VideoUpload(ctx, userId, title, file, *header)
 	if err != nil {
+		log.Println(err)
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}

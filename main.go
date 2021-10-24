@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"ms-api/app/controller"
 	"ms-api/app/util"
 	"ms-api/config"
@@ -35,6 +36,7 @@ import (
 // @name Authorization
 
 func main() {
+	util.LoggingSettings(config.Config.LogFile)
 	StartServer()
 }
 
@@ -71,7 +73,7 @@ func StartServer() {
 			timeout.WithTimeout(config.Config.APITimeout),
 			timeout.WithErrorHttpCode(http.StatusRequestTimeout),
 			timeout.WithCallBack(func(r *http.Request) {
-				fmt.Println("Request Timeout : ", r.URL.String())
+				log.Println("Request Timeout : ", r.URL.String())
 			})),
 	)
 
