@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"mime/multipart"
 	"ms-api/app/util"
 	"ms-api/config"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -53,16 +55,31 @@ func VideoFindAllSortedByAnalysisCount(filter VideoFilter) ([]Video, error) {
 
 func VideoFindAllRecommended(filter VideoFilter) ([]Video, error) {
 	videos := []Video{}
-	url := fmt.Sprintf("%s/videos/recommended?userId=%s&limit=%d", config.Config.RecommendationAPIURL(), *filter.UserId, *filter.Limit)
-	req, err := http.NewRequest("GET", url, nil)
+
+	url := fmt.Sprintf("%s/videos/recommended", config.Config.RecommendationAPIURL())
+	request, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Params
+	params := request.URL.Query()
+	if filter.UserId != nil && *filter.UserId != "" {
+		params.Add("userId", *filter.UserId)
+	}
+	if filter.Limit != nil {
+		params.Add("limit", strconv.Itoa(*filter.Limit))
+	}
+	request.URL.RawQuery = params.Encode()
+
+	// Request
+	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	byteArray, _ := ioutil.ReadAll(resp.Body)
+	defer response.Body.Close()
+
+	byteArray, _ := ioutil.ReadAll(response.Body)
 	err = json.Unmarshal(byteArray, &videos)
 	if err != nil {
 		return nil, err
