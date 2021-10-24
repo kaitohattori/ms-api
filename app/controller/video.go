@@ -107,7 +107,7 @@ func (c *VideoController) Get(ctx *gin.Context) {
 // @Summary Add a video
 // @Description add video
 // @Tags Videos
-// @Accept json
+// @Accept mpfd
 // @Produce json
 // @Security ApiKeyAuth
 // @Param title formData string true "Video Title"
