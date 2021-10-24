@@ -54,7 +54,7 @@ func (c *VideoController) Find(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	filter := model.NewVideoFilter(sortType, limit, &userId)
+	filter := model.VideoFilter{SortType: sortType, Limit: limit, UserId: &userId}
 	videos, err := model.VideoFind(filter)
 	if err != nil {
 		util.NewError(ctx, http.StatusNotFound, err)
