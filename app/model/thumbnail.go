@@ -8,27 +8,27 @@ import (
 )
 
 type Thumbnail struct {
-	Closer io.ReadCloser
+	File io.ReadCloser
 }
 
-func NewThumbnail(f *os.File) Thumbnail {
+func NewThumbnail(file *os.File) Thumbnail {
 	return Thumbnail{
-		Closer: f,
+		File: file,
 	}
 }
 
 func ThumbnailGet(videoId int) (*Thumbnail, error) {
 	thumbnailFilePath := util.FileUtilThumbnailFilePath(videoId)
-	f, err := os.Open(thumbnailFilePath)
+	file, err := os.Open(thumbnailFilePath)
 	if err != nil {
 		return nil, err
 	}
-	data := NewThumbnail(f)
+	data := NewThumbnail(file)
 	return &data, nil
 }
 
 func (t Thumbnail) Bytes() []byte {
 	buffer := new(bytes.Buffer)
-	io.Copy(buffer, t.Closer)
+	io.Copy(buffer, t.File)
 	return buffer.Bytes()
 }
