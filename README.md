@@ -32,6 +32,12 @@ $ make docker-build
 
 # Docker実行
 $ make docker-run
+
+# Docker Compose系
+$ make docker-compose-build
+$ make docker-compose-up
+$ make docker-compose-down
+$ make docker-compose-run // build & up
 ```
 
 ## ドキュメント
