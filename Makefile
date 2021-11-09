@@ -12,7 +12,7 @@ docker-build: ## Build on docker
 	docker build -t $(NAME) .
 
 docker-run: ## Run on docker
-	docker run $(NAME)
+	docker run --name $(NAME) --rm -p 8080:8080 $(NAME)
 
 docker-compose-build: ## Build by docker-compose
 	docker-compose build

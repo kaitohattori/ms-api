@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"ms-api/app/controller"
 	"ms-api/app/util"
@@ -119,6 +118,6 @@ func StartServer() {
 			thumbnail.GET(":id/thumbnail", thumbnailController.GetThumbnail)
 		}
 	}
-	engine.GET(fmt.Sprintf("%s/*any", config.Config.ApiDocsPath), ginSwagger.WrapHandler(swaggerFiles.Handler))
-	engine.Run(fmt.Sprintf(":%d", config.Config.WebAPIPort))
+	engine.GET("/docs/api/v1/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	engine.Run(":8080")
 }
