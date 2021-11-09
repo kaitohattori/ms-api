@@ -18,7 +18,7 @@ func NewThumbnail(f *os.File) Thumbnail {
 }
 
 func ThumbnailGet(videoId int) (*Thumbnail, error) {
-	thumbnailFilePath := util.FileUtil.ThumbnailFilePath(videoId)
+	thumbnailFilePath := util.FileUtilThumbnailFilePath(videoId)
 	f, err := os.Open(thumbnailFilePath)
 	if err != nil {
 		return nil, err
