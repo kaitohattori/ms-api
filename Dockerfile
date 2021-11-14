@@ -1,4 +1,4 @@
-FROM golang:1.16.8-alpine3.14 AS build
+FROM golang:1.16.8-alpine3.14
 
 WORKDIR /go/src/ms-api
 
