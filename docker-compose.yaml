@@ -3,10 +3,6 @@ services:
   postgresql:
     image: postgres:latest
     container_name: postgresql
-    ports:
-      - 5432:5432
-    # volumes:
-    #   - ./postgres/init:/docker-entrypoint-initdb.d
     environment:
       POSTGRES_DB: video
       POSTGRES_USER: root
