@@ -1,9 +1,11 @@
 package util
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"ms-api/config"
 	"net/http"
 
@@ -66,6 +68,51 @@ func (a AuthUtil) CheckJWT() gin.HandlerFunc {
 	}
 }
 
+func (a AuthUtil) CheckJWTNotRequired() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token, err := AuthUtilParseToken(a.jwtMiddleware, c.Writer, c.Request)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), a.jwtMiddleware.Options.UserProperty, token))
+	}
+}
+
+func AuthUtilParseToken(m *jwtmiddleware.JWTMiddleware, w http.ResponseWriter, r *http.Request) (*jwt.Token, error) {
+	token, err := m.Options.Extractor(r)
+	if err != nil {
+		return nil, fmt.Errorf("error extracting token: %w", err)
+	}
+
+	// if token is empty
+	if token == "" {
+		return nil, fmt.Errorf("required authorization token not found")
+	}
+
+	// Now parse the token
+	parsedToken, err := jwt.Parse(token, m.Options.ValidationKeyGetter)
+
+	// Check if there was an error in parsing...
+	if err != nil {
+		return nil, fmt.Errorf("error parsing token: %w", err)
+	}
+
+	if m.Options.SigningMethod != nil && m.Options.SigningMethod.Alg() != parsedToken.Header["alg"] {
+		message := fmt.Sprintf("Expected %s signing method but token specified %s",
+			m.Options.SigningMethod.Alg(),
+			parsedToken.Header["alg"])
+		return nil, fmt.Errorf("error validating token algorithm: %s", message)
+	}
+
+	// Check if the parsed token is valid...
+	if !parsedToken.Valid {
+		return nil, errors.New("token is invalid")
+	}
+
+	return parsedToken, nil
+}
+
 func AuthUtilGetPemCert(token *jwt.Token) (*string, error) {
 	url := fmt.Sprintf("%s.well-known/jwks.json", config.Config.Auth0Domain)
 	resp, err := http.Get(url)
@@ -93,9 +140,12 @@ func AuthUtilGetPemCert(token *jwt.Token) (*string, error) {
 	return &cert, nil
 }
 
-func AuthUtilGetUserId(ctx *gin.Context) string {
+func AuthUtilGetUserId(ctx *gin.Context) (*string, error) {
 	user := ctx.Request.Context().Value("user")
+	if user == nil {
+		return nil, errors.New("failed to get userId")
+	}
 	claims := user.(*jwt.Token).Claims.(jwt.MapClaims)
 	sub := claims["sub"].(string)
-	return sub
+	return &sub, nil
 }

@@ -20,11 +20,11 @@ func NewVideoController() *VideoController {
 
 // VideoController Find docs
 // @Summary Find videos
-// @Description find videos
+// @Description find videos. login is required when sortType is recommended
 // @Tags Videos
 // @Accept json
 // @Produce json
-// @Param userId query string false "User ID"
+// @Security ApiKeyAuth
 // @Param limit query int false "limit"
 // @Param sortType query string true "sort type [popular, recommended]" default(popular)
 // @Success 200 {array} model.Video
@@ -34,7 +34,6 @@ func NewVideoController() *VideoController {
 // @Router /videos [get]
 func (c *VideoController) Find(ctx *gin.Context) {
 	sortTypeStr := ctx.Query("sortType")
-	userId := ctx.Query("userId")
 	limitStr := ctx.Query("limit")
 	// limit
 	var limit *int = nil
@@ -55,7 +54,20 @@ func (c *VideoController) Find(ctx *gin.Context) {
 		log.Println("Set sortType to default value [popular]")
 		sortType = model.VideoSortTypeDefault()
 	}
-	filter := model.VideoFilter{SortType: sortType, Limit: limit, UserId: &userId}
+	// filter
+	filter := model.VideoFilter{}
+	if sortType == model.VideoSortTypeRecommended {
+		userId, _ := util.AuthUtilGetUserId(ctx)
+		filter = model.VideoFilter{SortType: sortType, Limit: limit, UserId: userId}
+	} else {
+		filter = model.VideoFilter{SortType: sortType, Limit: limit, UserId: nil}
+	}
+	// check userId is set. login is required when sortType is recommended
+	if err := filter.Valid(); err != nil {
+		log.Println(err)
+		util.NewError(ctx, http.StatusBadRequest, err)
+		return
+	}
 	videos, err := model.VideoFind(filter)
 	if err != nil {
 		log.Println(err)
@@ -117,9 +129,14 @@ func (c *VideoController) Get(ctx *gin.Context) {
 // @Failure 500 {object} util.HTTPError
 // @Router /videos [post]
 func (c *VideoController) Add(ctx *gin.Context) {
-	userId := util.AuthUtilGetUserId(ctx)
+	userId, err := util.AuthUtilGetUserId(ctx)
+	if err != nil {
+		log.Println(err)
+		util.NewError(ctx, http.StatusUnauthorized, err)
+		return
+	}
 	title := ctx.PostForm("title")
-	video, err := model.VideoInsert(userId, title)
+	video, err := model.VideoInsert(*userId, title)
 	if err != nil {
 		log.Println(err)
 		util.NewError(ctx, http.StatusNotFound, err)
@@ -143,7 +160,12 @@ func (c *VideoController) Add(ctx *gin.Context) {
 // @Failure 500 {object} util.HTTPError
 // @Router /videos/{id} [post]
 func (c *VideoController) Update(ctx *gin.Context) {
-	userId := util.AuthUtilGetUserId(ctx)
+	userId, err := util.AuthUtilGetUserId(ctx)
+	if err != nil {
+		log.Println(err)
+		util.NewError(ctx, http.StatusUnauthorized, err)
+		return
+	}
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
@@ -154,7 +176,7 @@ func (c *VideoController) Update(ctx *gin.Context) {
 	title := ctx.PostForm("title")
 	v := &model.Video{
 		Id:        videoId,
-		UserId:    userId,
+		UserId:    *userId,
 		Title:     title,
 		UpdatedAt: time.Now(),
 	}
@@ -219,7 +241,12 @@ func (c *VideoController) Delete(ctx *gin.Context) {
 // @Failure 500 {object} util.HTTPError
 // @Router /videos/upload [post]
 func (c *VideoController) Upload(ctx *gin.Context) {
-	userId := util.AuthUtilGetUserId(ctx)
+	userId, err := util.AuthUtilGetUserId(ctx)
+	if err != nil {
+		log.Println(err)
+		util.NewError(ctx, http.StatusUnauthorized, err)
+		return
+	}
 	file, header, err := ctx.Request.FormFile("file")
 	if err != nil {
 		log.Println(err)
@@ -227,7 +254,7 @@ func (c *VideoController) Upload(ctx *gin.Context) {
 		return
 	}
 	title := ctx.PostForm("title")
-	video, err := model.VideoUpload(ctx, userId, title, file, *header)
+	video, err := model.VideoUpload(ctx, *userId, title, file, *header)
 	if err != nil {
 		log.Println(err)
 		util.NewError(ctx, http.StatusNotFound, err)

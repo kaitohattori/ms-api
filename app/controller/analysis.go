@@ -63,7 +63,12 @@ func (c *AnalysisController) Total(ctx *gin.Context) {
 // @Failure 500 {object} util.HTTPError
 // @Router /videos/{id}/analysis [post]
 func (c *AnalysisController) Add(ctx *gin.Context) {
-	userId := util.AuthUtilGetUserId(ctx)
+	userId, err := util.AuthUtilGetUserId(ctx)
+	if err != nil {
+		log.Println(err)
+		util.NewError(ctx, http.StatusUnauthorized, err)
+		return
+	}
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
@@ -71,7 +76,7 @@ func (c *AnalysisController) Add(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	analysis, err := model.AnalysisInsert(userId, videoId)
+	analysis, err := model.AnalysisInsert(*userId, videoId)
 	if err != nil {
 		log.Println(err)
 		util.NewError(ctx, http.StatusNotFound, err)

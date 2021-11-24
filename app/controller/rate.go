@@ -32,7 +32,12 @@ func NewRateController() *RateController {
 // @Failure 500 {object} util.HTTPError
 // @Router /videos/{id}/rate [get]
 func (c *RateController) Get(ctx *gin.Context) {
-	userId := util.AuthUtilGetUserId(ctx)
+	userId, err := util.AuthUtilGetUserId(ctx)
+	if err != nil {
+		log.Println(err)
+		util.NewError(ctx, http.StatusUnauthorized, err)
+		return
+	}
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
@@ -40,7 +45,7 @@ func (c *RateController) Get(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	rate, err := model.RateFindOne(videoId, userId)
+	rate, err := model.RateFindOne(videoId, *userId)
 	if err != nil {
 		log.Println(err)
 		util.NewError(ctx, http.StatusNotFound, err)
@@ -64,7 +69,12 @@ func (c *RateController) Get(ctx *gin.Context) {
 // @Failure 500 {object} util.HTTPError
 // @Router /videos/{id}/rate [post]
 func (c *RateController) Update(ctx *gin.Context) {
-	userId := util.AuthUtilGetUserId(ctx)
+	userId, err := util.AuthUtilGetUserId(ctx)
+	if err != nil {
+		log.Println(err)
+		util.NewError(ctx, http.StatusUnauthorized, err)
+		return
+	}
 	videoIdStr := ctx.Param("id")
 	videoId, err := strconv.Atoi(videoIdStr)
 	if err != nil {
@@ -80,7 +90,7 @@ func (c *RateController) Update(ctx *gin.Context) {
 		return
 	}
 	rate := &model.Rate{
-		UserId:    userId,
+		UserId:    *userId,
 		VideoId:   videoId,
 		Value:     float32(value),
 		UpdatedAt: time.Now(),

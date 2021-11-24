@@ -44,7 +44,7 @@ func VideoFindAllSortedByAnalysisCount(filter VideoFilter) ([]Video, error) {
 	// TODO: もうちょっとかっこよく書きたい
 	query := DbConnection.Model(&Video{}).Joins("left join (select video_id, count(id) as analysis_count from analyses group by video_id) as v on videos.id = v.video_id")
 	if filter.UserId != nil && *filter.UserId != "" {
-		query.Where("user_id = ?", filter.UserId)
+		query.Where("user_id = ?", *filter.UserId)
 	}
 	query.Order("COALESCE(analysis_count, 0) desc")
 	if filter.Limit != nil && *filter.Limit != 0 {
@@ -180,6 +180,15 @@ type VideoFilter struct {
 	SortType VideoSortType `json:"sortType,omitempty"`
 	Limit    *int          `json:"limit,omitempty"`
 	UserId   *string       `json:"userId,omitempty"`
+}
+
+func (v VideoFilter) Valid() error {
+	if v.SortType == VideoSortTypeRecommended {
+		if v.UserId == nil {
+			return errors.New("login is required when sortType is recommended")
+		}
+	}
+	return nil
 }
 
 type VideoSortType string
