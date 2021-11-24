@@ -92,7 +92,7 @@ func StartServer() {
 		}
 		videos := v1.Group("/videos")
 		{
-			videos.GET("", authUtil.CheckJWTNotRequired(), videoController.Find)
+			videos.GET("", authUtil.CheckJWTAuthNotRequired(), videoController.Find)
 			videos.GET(":id", videoController.Get)
 			videos.POST("", authUtil.CheckJWT(), videoController.Add)
 			videos.POST(":id", authUtil.CheckJWT(), videoController.Update)

@@ -1,7 +1,6 @@
 package util
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,7 +14,8 @@ import (
 )
 
 type AuthUtil struct {
-	jwtMiddleware *jwtmiddleware.JWTMiddleware
+	jwtMiddleware                *jwtmiddleware.JWTMiddleware
+	jwtMiddlewareAuthNotRequired *jwtmiddleware.JWTMiddleware
 }
 
 type Jwks struct {
@@ -54,8 +54,32 @@ func NewAuthUtil(identifer string, domain string) AuthUtil {
 		},
 		SigningMethod: jwt.SigningMethodRS256,
 	})
+	jwtMiddlewareAuthNotRequired := jwtmiddleware.New(jwtmiddleware.Options{
+		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
+			// Verify 'aud' claim
+			checkAud := token.Claims.(jwt.MapClaims).VerifyAudience(identifer, false)
+			if !checkAud {
+				return token, errors.New("invalid audience")
+			}
+			// Verify 'iss' claim
+			checkIss := token.Claims.(jwt.MapClaims).VerifyIssuer(domain, false)
+			if !checkIss {
+				return token, errors.New("invalid issuer")
+			}
+			// Get pem certification
+			cert, err := AuthUtilGetPemCert(token)
+			if err != nil {
+				panic(err.Error())
+			}
+			result, _ := jwt.ParseRSAPublicKeyFromPEM([]byte(*cert))
+			return result, nil
+		},
+		SigningMethod: jwt.SigningMethodRS256,
+		ErrorHandler:  func(w http.ResponseWriter, r *http.Request, err string) {},
+	})
 	return AuthUtil{
-		jwtMiddleware: jwtMiddleware,
+		jwtMiddleware:                jwtMiddleware,
+		jwtMiddlewareAuthNotRequired: jwtMiddlewareAuthNotRequired,
 	}
 }
 
@@ -68,49 +92,13 @@ func (a AuthUtil) CheckJWT() gin.HandlerFunc {
 	}
 }
 
-func (a AuthUtil) CheckJWTNotRequired() gin.HandlerFunc {
+func (a AuthUtil) CheckJWTAuthNotRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token, err := AuthUtilParseToken(a.jwtMiddleware, c.Writer, c.Request)
-		if err != nil {
+		jwtMid := *a.jwtMiddlewareAuthNotRequired
+		if err := jwtMid.CheckJWT(c.Writer, c.Request); err != nil {
 			log.Println(err)
-			return
 		}
-		c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), a.jwtMiddleware.Options.UserProperty, token))
 	}
-}
-
-func AuthUtilParseToken(m *jwtmiddleware.JWTMiddleware, w http.ResponseWriter, r *http.Request) (*jwt.Token, error) {
-	token, err := m.Options.Extractor(r)
-	if err != nil {
-		return nil, fmt.Errorf("error extracting token: %w", err)
-	}
-
-	// if token is empty
-	if token == "" {
-		return nil, fmt.Errorf("required authorization token not found")
-	}
-
-	// Now parse the token
-	parsedToken, err := jwt.Parse(token, m.Options.ValidationKeyGetter)
-
-	// Check if there was an error in parsing...
-	if err != nil {
-		return nil, fmt.Errorf("error parsing token: %w", err)
-	}
-
-	if m.Options.SigningMethod != nil && m.Options.SigningMethod.Alg() != parsedToken.Header["alg"] {
-		message := fmt.Sprintf("Expected %s signing method but token specified %s",
-			m.Options.SigningMethod.Alg(),
-			parsedToken.Header["alg"])
-		return nil, fmt.Errorf("error validating token algorithm: %s", message)
-	}
-
-	// Check if the parsed token is valid...
-	if !parsedToken.Valid {
-		return nil, errors.New("token is invalid")
-	}
-
-	return parsedToken, nil
 }
 
 func AuthUtilGetPemCert(token *jwt.Token) (*string, error) {
