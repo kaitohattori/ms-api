@@ -10,7 +10,7 @@ $ export GO111MODULE=on
 $ go mod tidy
 ```
 
-## 動作
+## ビルド
 
 ```
 # docsを更新
@@ -32,12 +32,16 @@ $ make docker-build
 
 # Docker実行
 $ make docker-run
+```
 
-# Docker Compose系
-$ make docker-compose-build
+## ms-tvを実行
+
+```
+# ms-api, ms-stream-api, ms-recommendation-apiのそれぞれで make docker-build を実行してから、以下を実施してください
 $ make docker-compose-up
+
+# 停止コマンド
 $ make docker-compose-down
-$ make docker-compose-run // build & up
 ```
 
 ## ドキュメント

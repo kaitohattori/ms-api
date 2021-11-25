@@ -13,19 +13,19 @@ services:
     hostname: postgres
     restart: always
     user: root
-  # ms-api:
-  #   image: ms-api:latest
-  #   container_name: ms-api
-  #   ports:
-  #     - 8080:8080
-  #   depends_on:
-  #     - postgresql
-  #   volumes:
-  #     - ./logs:/go/src/ms-api/logs
-  #     - ./assets:/go/src/ms-api/assets
-  #   hostname: ms-api
-  #   restart: always
-  #   user: root
+  ms-api:
+    image: ms-api:latest
+    container_name: ms-api
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgresql
+    volumes:
+      - ./logs:/go/src/ms-api/logs
+      - ./assets:/go/src/ms-api/assets
+    hostname: ms-api
+    restart: always
+    user: root
   ms-stream-api:
     image: ms-stream-api:latest
     container_name: ms-stream-api
