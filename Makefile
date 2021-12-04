@@ -1,4 +1,5 @@
 NAME = ms-api
+POSTGRESQL = postgresql
 
 build: ## Build on local
 	swag init
@@ -26,6 +27,21 @@ docker-compose-down: ## Stop by docker-compose
 docker-compose-run: ## Run by docker-compose
 	make docker-compose-build
 	make docker-compose-up
+
+external-run: ## Run external apps
+	docker run -d \
+		-p 5432:5432 \
+		-e POSTGRES_DB=video \
+		-e POSTGRES_USER=root \
+		-e POSTGRES_PASSWORD=root \
+		-e POSTGRES_INITDB_ARGS="--encoding=UTF-8" \
+		-v $(PWD)/db/:/docker-entrypoint-initdb.d \
+		--name $(POSTGRESQL) \
+		postgres:latest
+
+external-end: ## End external apps
+	docker stop $(POSTGRESQL)
+	docker rm $(POSTGRESQL)
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
