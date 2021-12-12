@@ -1,5 +1,6 @@
 APP_NAME = ms-api
 POSTGRESQL = postgresql
+DOCKER_STORAGE_PATH = ~/ms-tv
 
 build: ## Build on local
 	swag init
@@ -13,23 +14,15 @@ docker-build: ## Build on docker
 	docker build -t $(APP_NAME) .
 
 docker-run: ## Run on docker
-	docker run --name $(APP_NAME) --rm -p 8080:8080 $(APP_NAME)
-
-docker-compose-build: ## Build by docker-compose
-	docker-compose build
-
-docker-compose-up: ## docker-compose up
-	docker-compose up
-
-docker-compose-down: ## Stop by docker-compose
-	docker-compose down
-
-docker-compose-run: ## Run by docker-compose
-	make docker-compose-build
-	make docker-compose-up
+	docker run --rm \
+		-p 8080:8080 \
+		-v $(DOCKER_STORAGE_PATH)/assets:/go/src/$(APP_NAME)/assets \
+		-v $(DOCKER_STORAGE_PATH)/logs:/go/src/$(APP_NAME)/logs \
+		--name $(APP_NAME) \
+		$(APP_NAME):latest
 
 external-run: ## Run external apps
-	docker run -d \
+	docker run -d --rm \
 		-p 5432:5432 \
 		-e POSTGRES_DB=video \
 		-e POSTGRES_USER=root \
@@ -41,7 +34,6 @@ external-run: ## Run external apps
 
 external-end: ## End external apps
 	docker stop $(POSTGRESQL)
-	docker rm $(POSTGRESQL)
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
