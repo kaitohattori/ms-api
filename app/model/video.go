@@ -66,7 +66,7 @@ func VideoFindAllRecommended(filter VideoFilter) ([]Video, error) {
 	// Params
 	params := request.URL.Query()
 	if filter.UserId != nil && *filter.UserId != "" {
-		params.Add("userId", *filter.UserId)
+		params.Add("user_id", *filter.UserId)
 	}
 	if filter.Limit != nil {
 		params.Add("limit", strconv.Itoa(*filter.Limit))
