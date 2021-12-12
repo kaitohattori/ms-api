@@ -43,3 +43,7 @@ INSERT INTO analyses VALUES(1, 'user_1', 1, '2000-01-01 00:00:00', '2000-01-01 0
 INSERT INTO analyses VALUES(2, 'user_2', 2, '2000-01-01 00:00:00', '2000-01-01 00:00:00');
 INSERT INTO analyses VALUES(3, 'user_3', 3, '2000-01-01 00:00:00', '2000-01-01 00:00:00');
 INSERT INTO analyses VALUES(4, 'user_4', 4, '2000-01-01 00:00:00', '2000-01-01 00:00:00');
+
+SELECT setval('videos_id_seq', (SELECT MAX(id) FROM videos));
+SELECT setval('rates_id_seq', (SELECT MAX(id) FROM rates));
+SELECT setval('analyses_id_seq', (SELECT MAX(id) FROM analyses));
