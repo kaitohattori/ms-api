@@ -90,6 +90,10 @@ func StartServer() {
 		{
 			auth.GET("login", authController.Login)
 		}
+		videoUpload := v1.Group("/videos")
+		{
+			videoUpload.POST("upload", authUtil.CheckJWT(), videoController.Upload)
+		}
 		videos := v1.Group("/videos")
 		{
 			videos.GET("", authUtil.CheckJWTAuthNotRequired(), videoController.Find)
@@ -97,10 +101,6 @@ func StartServer() {
 			videos.POST("", authUtil.CheckJWT(), videoController.Add)
 			videos.POST(":id", authUtil.CheckJWT(), videoController.Update)
 			videos.DELETE(":id", authUtil.CheckJWT(), videoController.Delete)
-		}
-		video_upload := v1.Group("/videos")
-		{
-			video_upload.POST("upload", authUtil.CheckJWT(), videoController.Upload)
 		}
 		analysis := v1.Group("/videos")
 		{

@@ -15,5 +15,5 @@ if [ ! -e $2/thumbnail ]; then
 fi
 
 # process video
-ffmpeg -i $1 -profile:v baseline -level 3.0 -s $3 -start_number 0 -hls_time 10 -hls_list_size 0 -f hls $2/hls/video.m3u8
+ffmpeg -i $1 -profile:v baseline -level 3.0 -s $3 -start_number 0 -hls_segment_size 2000000 -f hls $2/hls/video.m3u8
 ffmpeg -i $2/hls/video.m3u8 -s $3 -vframes 1 -f image2 $2/thumbnail/thumbnail.jpg
