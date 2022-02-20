@@ -19,6 +19,9 @@ $ go mod tidy
 ## 実行コマンド
 
 ```
+# docsを更新
+$ swag init
+
 # 実行
 $ make run
 
