@@ -3,6 +3,7 @@ EXTERNAL_APPS = postgresql ms-recommendation-api
 
 init: ## Initialize app
 	go mod download
+	go mod tidy
 	mkdir -p ./logs/
 
 run: ## Run on local
