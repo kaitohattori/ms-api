@@ -8,6 +8,12 @@ $ export GO111MODULE=on
 
 # App初期設定
 $ make init
+
+# ffmpegをインストール
+$ brew install ffmpeg
+
+# mod.modとgo.sumの差でエラーが出たら以下のコマンドを実行
+$ go mod tidy
 ```
 
 ## 実行コマンド

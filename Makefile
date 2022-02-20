@@ -2,8 +2,7 @@ APP_NAME = ms-api
 EXTERNAL_APPS = postgresql ms-recommendation-api
 
 init: ## Initialize app
-	brew install ffmpeg
-	go mod tidy
+	go install
 	mkdir -p ./logs/
 
 run: ## Run on local
