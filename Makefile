@@ -15,8 +15,8 @@ docker-build: ## Build on docker
 docker-run: ## Run on docker
 	docker run --rm \
 		-p 8080:8080 \
-		-v ./assets:/go/src/$(APP_NAME)/assets \
-		-v ./logs:/go/src/$(APP_NAME)/logs \
+		-v assets:/go/src/$(APP_NAME)/assets \
+		-v logs:/go/src/$(APP_NAME)/logs \
 		--name $(APP_NAME) \
 		$(APP_NAME):latest
 

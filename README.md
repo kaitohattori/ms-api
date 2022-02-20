@@ -16,6 +16,8 @@ $ brew install ffmpeg
 $ go mod tidy
 ```
 
+`config/config.ini` を配置してください。
+
 ## 実行コマンド
 
 ```
