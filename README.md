@@ -3,26 +3,16 @@
 ## 開発準備
 
 ```
-# ffmpegをインストール
-$ brew install ffmpeg
-
 # GO111MODULEをオンにする
 $ export GO111MODULE=on
 
-# mod.modとgo.sumの差でエラーが出たら以下のコマンドを実行
-$ go mod tidy
-
-# docker用の共有ディレクトリを生成
-$ mkdir -p ~/ms-tv/assets
-$ mkdir -p ~/ms-tv/logs
+# App初期設定
+$ make init
 ```
 
 ## 実行コマンド
 
 ```
-# ビルド
-$ make build
-
 # 実行
 $ make run
 
@@ -31,16 +21,15 @@ $ make docker-build
 
 # Docker実行
 $ make docker-run
-```
 
-## ms-tvを実行
+# external appsを立ち上げる
+$ make external-run
 
-```
-# ms-api, ms-stream-api, ms-recommendation-apiのそれぞれで make docker-build を実行してから、以下を実施してください
-$ docker-compose up
+# external appsを終了する
+$ make external-end
 
-# 停止コマンド
-$ docker-compose down
+# ヘルプ
+$ make help
 ```
 
 ## ドキュメント

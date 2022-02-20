@@ -9,3 +9,6 @@ main
 /config/config.ini
 /assets
 /logs
+
+# external apps
+/external-apps/logs
