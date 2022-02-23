@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-api-deployment
+  labels:
+    app: ms-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-api
+  template:
+    metadata:
+      labels:
+        app: ms-api
+    spec:
+      containers:
+        - name: ms-api
+          image: ms-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - mountPath: /go/src/ms-api/assets
+              name: video-assets
+            - mountPath: /go/src/ms-api/logs
+              name: logs
+      volumes:
+        - name: video-assets
+          persistentVolumeClaim:
+            claimName: video-assets-pv-claim
+        - name: logs
+          persistentVolumeClaim:
+            claimName: logs-pv-claim

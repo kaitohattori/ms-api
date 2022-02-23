@@ -1,48 +1,83 @@
 # MS API
 
-## 開発準備
+## How to use
 
 ```
-# GO111MODULEをオンにする
+# Enable GO111MODULE
 $ export GO111MODULE=on
 
-# App初期設定
+# Initialize app
 $ make init
 
-# ffmpegをインストール
+# Install ffmpeg
 $ brew install ffmpeg
 
-# mod.modとgo.sumの差でエラーが出たら以下のコマンドを実行
+# Run this command if there is differeces betreen mod.mod and go.sum
 $ go mod tidy
 ```
 
-`config/config.ini` を配置してください。
+Set config file at `config/config.ini`.
 
-## 実行コマンド
+## How to develop
 
 ```
-# docsを更新
+# Update docs
 $ swag init
 
-# 実行
+# Run on local
 $ make run
 
-# Dockerビルド
+# Build on docker
 $ make docker-build
 
-# Docker実行
+# Run on docker
 $ make docker-run
 
-# external appsを立ち上げる
+# Run external apps
 $ make external-run
 
-# external appsを終了する
+# End external apps
 $ make external-end
 
-# ヘルプ
+# Help
 $ make help
 ```
 
 ## ドキュメント
 
 http://localhost:8080/docs/api/v1/index.html#/
+
+## Deploy
+
+Deploy to minikube
+
+```
+# Start minikube
+$ minikube start
+
+# Use local image
+$ eval $(minikube docker-env)
+
+# Build docker image
+$ docker build -t ms-api .
+
+# Deploy
+$ kubectl apply -f deploy/deployment.yaml
+$ kubectl apply -f deploy/service.yaml
+
+# Get all status
+$ kubectl get all
+
+# Access to deployed app (Click the displayed url)
+$ minikube service ms-api --url
+```
+
+minikube common commands
+
+```
+$ minikube start
+$ minikube status
+$ minikube dashboard
+$ minikube tunnel
+$ minikube stop
+```
