@@ -8,13 +8,20 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ms-api
+      app: ms-api-gateway
   template:
     metadata:
       labels:
-        app: ms-api
+        app: ms-api-gateway
     spec:
       containers:
+        - name: ms-api-gateway
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: /etc/nginx/conf.d
+              name: nginx-conf
         - name: ms-api
           image: ms-api:latest
           imagePullPolicy: IfNotPresent
@@ -26,6 +33,9 @@ spec:
             - mountPath: /go/src/ms-api/logs
               name: logs
       volumes:
+        - name: nginx-conf
+          configMap:
+            name: ms-api-nginx-conf
         - name: video-assets
           persistentVolumeClaim:
             claimName: video-assets-pv-claim
