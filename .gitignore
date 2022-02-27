@@ -6,7 +6,7 @@ main
 /docs
 
 # app
-/config/config.ini
+/config/config*.ini
 /assets
 /logs
 

@@ -12,7 +12,7 @@ services:
             - 5432:5432
         volumes:
             - ./external-apps/db/:/docker-entrypoint-initdb.d
-        hostname: postgres
+        hostname: postgresql
         restart: always
         user: root
     ms-api:
