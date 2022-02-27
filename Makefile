@@ -14,7 +14,8 @@ docker-build: ## Build on docker
 	docker build -t $(APP_NAME) .
 
 docker-run: ## Run on docker
-	docker run --rm --network=host \
+	docker run --rm \
+		--add-host=localhost:host-gateway \
 		-p 8080:8080 \
 		-e APP_ENV=development \
 		-v assets:/go/src/$(APP_NAME)/assets \
