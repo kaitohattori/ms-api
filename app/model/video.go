@@ -57,7 +57,7 @@ func VideoFindAllSortedByAnalysisCount(filter VideoFilter) ([]Video, error) {
 func VideoFindAllRecommended(filter VideoFilter) ([]Video, error) {
 	videos := []Video{}
 
-	url := fmt.Sprintf("%s/videos/recommended", config.Config.RecommendationAPIURL())
+	url := fmt.Sprintf("%s/videos/recommended/", config.Config.RecommendationAPIURL())
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Println(err)
