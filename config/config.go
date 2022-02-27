@@ -62,9 +62,9 @@ func getEnv() string {
 var Config ConfigList
 
 func init() {
-	configFilePath := "config/config-production.ini"
-	if getEnv() == "development" {
-		configFilePath = "config/config-development.ini"
+	configFilePath := "config/config-development.ini"
+	if getEnv() == "production" {
+		configFilePath = "config/config-production.ini"
 	}
 	cfg, err := ini.Load(configFilePath)
 	if err != nil {

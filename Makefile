@@ -8,7 +8,7 @@ init: ## Initialize app
 
 run: ## Run on local
 	swag init
-	APP_ENV=development go run main.go
+	go run main.go
 
 docker-build: ## Build on docker
 	docker build -t $(APP_NAME) .
@@ -17,7 +17,6 @@ docker-run: ## Run on docker
 	docker run --rm \
 		--add-host=localhost:host-gateway \
 		-p 8080:8080 \
-		-e APP_ENV=development \
 		-v assets:/go/src/$(APP_NAME)/assets \
 		-v logs:/go/src/$(APP_NAME)/logs \
 		--name $(APP_NAME) \
