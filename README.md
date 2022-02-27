@@ -1,6 +1,6 @@
 # MS API
 
-## How to use
+## Prerequisites
 
 ```
 # Enable GO111MODULE
@@ -43,7 +43,7 @@ $ make external-end
 $ make help
 ```
 
-## ドキュメント
+## API Docs
 
 http://localhost:8080/docs/api/v1/index.html#/
 
