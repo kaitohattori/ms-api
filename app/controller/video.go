@@ -123,7 +123,7 @@ func (c *VideoController) Get(ctx *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param title formData string true "Video Title"
-// @Success 200 {object} model.Video
+// @Success 201 {object} model.Video
 // @Failure 400 {object} util.HTTPError
 // @Failure 404 {object} util.HTTPError
 // @Failure 500 {object} util.HTTPError
@@ -142,7 +142,7 @@ func (c *VideoController) Add(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, video)
+	ctx.JSON(http.StatusCreated, video)
 }
 
 // VideoController Update docs
@@ -154,7 +154,7 @@ func (c *VideoController) Add(ctx *gin.Context) {
 // @Security ApiKeyAuth
 // @Param id path int true "Video ID"
 // @Param title formData string true "Video Title"
-// @Success 200 {object} model.Video
+// @Success 201 {object} model.Video
 // @Failure 400 {object} util.HTTPError
 // @Failure 404 {object} util.HTTPError
 // @Failure 500 {object} util.HTTPError
@@ -185,7 +185,7 @@ func (c *VideoController) Update(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, v)
+	ctx.JSON(http.StatusCreated, v)
 }
 
 // VideoController Delete docs
@@ -232,7 +232,7 @@ func (c *VideoController) Delete(ctx *gin.Context) {
 // @Security ApiKeyAuth
 // @Param file formData file true "Video File"
 // @Param title formData string true "Video Title"
-// @Success 200 {object} model.Video
+// @Success 201 {object} model.Video
 // @Failure 400 {object} util.HTTPError
 // @Failure 404 {object} util.HTTPError
 // @Failure 500 {object} util.HTTPError
@@ -257,5 +257,5 @@ func (c *VideoController) Upload(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, video)
+	ctx.JSON(http.StatusCreated, video)
 }

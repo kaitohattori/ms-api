@@ -57,7 +57,7 @@ func (c *AnalysisController) Total(ctx *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Video ID"
-// @Success 200 {object} model.Analysis
+// @Success 201 {object} model.Analysis
 // @Failure 400 {object} util.HTTPError
 // @Failure 404 {object} util.HTTPError
 // @Failure 500 {object} util.HTTPError
@@ -82,5 +82,5 @@ func (c *AnalysisController) Add(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, analysis)
+	ctx.JSON(http.StatusCreated, analysis)
 }
