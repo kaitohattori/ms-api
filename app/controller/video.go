@@ -196,7 +196,7 @@ func (c *VideoController) Update(ctx *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Video ID"
-// @Success 200 {object} util.HTTPMessageResponse
+// @Success 204 ""
 // @Failure 400 {object} util.HTTPError
 // @Failure 404 {object} util.HTTPError
 // @Failure 500 {object} util.HTTPError
@@ -220,10 +220,7 @@ func (c *VideoController) Delete(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	resp := util.HTTPMessageResponse{
-		Message: "success",
-	}
-	ctx.JSON(http.StatusOK, resp)
+	ctx.JSON(http.StatusNoContent, nil)
 }
 
 // VideoController Upload docs

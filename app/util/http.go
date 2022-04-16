@@ -17,10 +17,6 @@ type HTTPError struct {
 	Message string `json:"message" example:"status bad request"`
 }
 
-type HTTPMessageResponse struct {
-	Message string `json:"message" example:"success"`
-}
-
 type HTTPValueResponse struct {
 	Value interface{} `json:"value"`
 }
