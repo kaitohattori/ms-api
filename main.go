@@ -110,7 +110,7 @@ func StartServer() {
 		{
 			rates.GET(":id/rate", authUtil.CheckJWT(), rateController.Get)
 			rates.GET(":id/rate/average", rateController.Average)
-			rates.POST(":id/rate", authUtil.CheckJWT(), rateController.Update)
+			rates.PATCH(":id/rate", authUtil.CheckJWT(), rateController.Update)
 		}
 		thumbnail := v1.Group("/videos")
 		{

@@ -62,12 +62,12 @@ func (c *RateController) Get(ctx *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Video ID"
-// @Param value query float32 true "Rate value"
-// @Success 200 {object} model.Rate
+// @Param rate body model.Rate true "Rate"
+// @Success 204 ""
 // @Failure 400 {object} util.HTTPError
 // @Failure 404 {object} util.HTTPError
 // @Failure 500 {object} util.HTTPError
-// @Router /videos/{id}/rate [post]
+// @Router /videos/{id}/rate [patch]
 func (c *RateController) Update(ctx *gin.Context) {
 	userId, err := util.AuthUtilGetUserId(ctx)
 	if err != nil {
@@ -82,26 +82,23 @@ func (c *RateController) Update(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	valueStr := ctx.Query("value")
-	value, err := strconv.ParseFloat(valueStr, 32)
-	if err != nil {
+	rate := &model.Rate{
+		UserId:    *userId,
+		VideoId:   videoId,
+		UpdatedAt: time.Now(),
+	}
+	if err := ctx.BindJSON(&rate); err != nil {
 		log.Println(err)
 		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	rate := &model.Rate{
-		UserId:    *userId,
-		VideoId:   videoId,
-		Value:     float32(value),
-		UpdatedAt: time.Now(),
-	}
-	newRate, err := rate.Update()
+	_, err = rate.Update()
 	if err != nil {
 		log.Println(err)
 		util.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, newRate)
+	ctx.JSON(http.StatusNoContent, nil)
 }
 
 // RateController Average docs
