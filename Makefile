@@ -26,10 +26,10 @@ docker-run: ## Run on docker
 external-init: ## Initialize external apps
 	rm -rf ./external-apps/logs
 
-external-run: ## Run external apps
+external-up: ## Up external apps
 	docker-compose up -d $(EXTERNAL_APPS)
 
-external-end: ## End external apps
+external-down: ## Down external apps
 	docker-compose down
 
 service-in: ## Service in app

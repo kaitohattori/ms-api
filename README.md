@@ -34,10 +34,10 @@ $ make docker-build
 $ make docker-run
 
 # Run external apps
-$ make external-run
+$ make external-up
 
 # End external apps
-$ make external-end
+$ make external-down
 
 # Help
 $ make help
