@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
@@ -19,6 +20,12 @@ type Rate struct {
 func RateFindOne(videoId int, userId string) (*Rate, error) {
 	rate := Rate{}
 	err := DbConnection.Where("video_id = ? AND user_id = ?", videoId, userId).First(&rate).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		rate = Rate{
+			Value: 0,
+		}
+		return &rate, nil
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +41,8 @@ func RateAverage(videoId int) (*float32, error) {
 		return nil, err
 	}
 	if len(result) == 0 {
-		return nil, errors.New("record not found")
+		emptyValue := float32(0)
+		return &emptyValue, nil
 	}
 	return &result[0].Average, nil
 }
